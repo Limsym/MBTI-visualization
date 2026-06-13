@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI 测试数据可视化分析</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b22; --panel2:#1c2330; --border:#2a3441;
+    --text:#e6edf3; --muted:#9aa7b4; --accent:#58a6ff;
+    --I:#58a6ff; --N:#3fb950; --T:#f0883e; --P:#bc8cff; --A:#ec6a9c;
+    --warn:#f85149;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,sans-serif;
+    line-height:1.6;}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px;}
+  header h1{font-size:28px;margin:0 0 6px;}
+  header p{color:var(--muted);margin:0 0 4px;}
+  .badge-row{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px;}
+  .badge{background:var(--panel);border:1px solid var(--border);border-radius:999px;
+    padding:6px 14px;font-size:13px;color:var(--muted);}
+  .badge b{color:var(--text);}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    padding:22px 24px;margin-top:26px;}
+  section h2{font-size:19px;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+  section .sub{color:var(--muted);font-size:14px;margin:0 0 16px;}
+  .chart{width:100%;height:420px;}
+  .chart.tall{height:460px;}
+  .chart.short{height:300px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
+  th,td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);}
+  th{color:var(--muted);font-weight:600;}
+  td.t-INTP{color:var(--I);} td.t-INFP{color:var(--P);}
+  td.t-INTJ{color:var(--N);} td.t-ENTP{color:var(--T);}
+  .flip{color:var(--warn);font-weight:700;}
+  .insight{display:flex;gap:14px;align-items:flex-start;padding:14px 0;
+    border-bottom:1px solid var(--border);}
+  .insight:last-child{border-bottom:none;}
+  .insight .ico{font-size:22px;line-height:1.2;}
+  .insight .body b{color:var(--text);}
+  .insight .body{color:var(--muted);font-size:14.5px;}
+  .key{color:var(--text);}
+  .legend-note{color:var(--muted);font-size:12.5px;margin-top:10px;}
+  code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12.5px;color:var(--accent);}
+  footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>🧭 MBTI 测试数据可视化分析</h1>
+    <p>13 次测试 · 跨度 2024-06-29 → 2026-02-27 · 主导类型 <b style="color:var(--I)">INTP-A 逻辑学家</b></p>
+    <div class="badge-row" id="badgeRow"></div>
+    <p class="legend-note">说明：每个维度的百分比已统一锚定到固定一极（I / N / T / P / A），便于在同一坐标轴上比较。
+    例如原始数据 <code>51% E</code> 换算为 I = 49，<code>52% F</code> 换算为 T = 48。<b>50% 是临界线，越线即字母翻转。</b></p>
+  </header>
+
+  <!-- 1. 趋势图 -->
+  <section>
+    <h2>① 四维度百分比随时间变化趋势</h2>
+    <p class="sub">折线越靠近中间红色 50% 临界线，该维度越"摇摆"。可点击图例切换显示。</p>
+    <div id="trend" class="chart tall"></div>
+    <p class="legend-note">纵轴 = 锚定极的百分比（越高越偏向该极）。S/N 与 A/T 始终远离临界线，是你最稳的两个锚。</p>
+  </section>
+
+  <!-- 2. 临界维度分析 -->
+  <section>
+    <h2>② 临界维度分析 · 谁在 50% 边缘摇摆？</h2>
+    <p class="sub">浮动条 = 每个维度 13 次测试的取值区间（min–max）；越贴近红色 50% 线、甚至跨过，越"危险"。右图统计每个维度越过临界线、导致字母翻转的次数。</p>
+    <div class="grid2">
+      <div id="range" class="chart"></div>
+      <div id="flips" class="chart"></div>
+    </div>
+    <p class="legend-note">区间跨过 50% 线 = 该维度在不同测试中出现过两种字母 → 这正是你类型变化的根源。</p>
+  </section>
+
+  <!-- 3. 类型时间线 -->
+  <section>
+    <h2>③ 类型时间线 · 每次切换由哪个临界维度驱动</h2>
+    <p class="sub">非 INTP 的每一次出现，都恰好对应某一个临界维度短暂越线。内核始终是 INTP-A。</p>
+    <div id="timeline" class="chart short"></div>
+  </section>
+
+  <!-- 4. 数据表 -->
+  <section>
+    <h2>④ 原始数据（已标注临界翻转）</h2>
+    <p class="sub">红色高亮 = 该次测试中越过 50% 临界、与主导极相反的维度。</p>
+    <div style="overflow-x:auto"><table id="dataTable"></table></div>
+  </section>
+
+  <!-- 5. 文字结论 -->
+  <section>
+    <h2>⑤ 综合解读</h2>
+    <div class="insight"><div class="ico">🧱</div><div class="body">
+      <b>两个铁打的锚：N 与 A。</b> 直觉(N) 全程 67%–88%、自信(A) 全程 51%–81%，从未靠近临界线。
+      <span class="key">"NA" 是你人格中最确定的底色——抽象思维 + 情绪稳定。</span></div></div>
+    <div class="insight"><div class="ico">🧲</div><div class="body">
+      <b>内向(I) 极稳，仅一次例外。</b> 13 次里 12 次为 I（61%–93%），只有 2024-12-12 微跌到 49（51% E），
+      催生了唯一一次 <span style="color:var(--T)">ENTP 辩论家</span>。属于噪声级波动。</div></div>
+    <div class="insight"><div class="ico">⚖️</div><div class="body">
+      <b>真正的摇摆维度是 T/F。</b> 思考(T) 取值 48%–89%，波动幅度最大，并两次跌破 50%
+      （2025-04-24 与 2025-10-27）→ 两次变成 <span style="color:var(--P)">INFP 调停者</span>。
+      <span class="key">在"逻辑判断"与"价值判断"之间，你处于真正的临界平衡。</span></div></div>
+    <div class="insight"><div class="ico">🔀</div><div class="body">
+      <b>J/P 次摇摆。</b> 你绝大多数时候是 P（感知型，52%–73%），但 2025-08-01 一次跌到 49（51% J）→
+      短暂的 <span style="color:var(--N)">INTJ 建筑师</span>。计划性是你的次级临界点。</div></div>
+    <div class="insight"><div class="ico">🎯</div><div class="body">
+      <b>一句话画像：</b> 你是一个<span class="key">高度稳定的 INTP-A（逻辑学家）</span>，
+      内核 = 内向直觉 + 自信，唯一真实的内在张力在 <b>T↔F</b>（理性 vs 共情），其次在 <b>P↔J</b>（灵活 vs 计划）。
+      所谓"类型变来变去"，本质是这两个临界维度的小幅越线，而非性格漂移。</div></div>
+  </section>
+
+  <footer>数据来源：用户 MBTI 测试历史 · 可视化由 ECharts 生成 · 鼠标悬停查看每次测试的原始百分比</footer>
+</div>
+
+<script>
+// ---- 数据：按时间升序。anchored = 锚定极的百分比；raw = 原始标注 ----
+const POLE = {ie:'I', sn:'N', tf:'T', jp:'P', at:'A'};
+const records = [
+  {date:'2024-06-29', tag:'#1', type:'INTP-A', name:'逻辑学家', ie:61, sn:86, tf:56, jp:60, at:63, raw:{ie:'61% I',sn:'86% N',tf:'56% T',jp:'60% P',at:'63% A'}},
+  {date:'2024-06-29', tag:'#2', type:'INTP-A', name:'逻辑学家', ie:64, sn:88, tf:64, jp:52, at:57, raw:{ie:'64% I',sn:'88% N',tf:'64% T',jp:'52% P',at:'57% A'}},
+  {date:'2024-11-27', tag:'',   type:'INTP-A', name:'逻辑学家', ie:88, sn:84, tf:89, jp:66, at:51, raw:{ie:'88% I',sn:'84% N',tf:'89% T',jp:'66% P',at:'51% A'}},
+  {date:'2024-12-05', tag:'',   type:'INTP-A', name:'逻辑学家', ie:72, sn:79, tf:75, jp:56, at:60, raw:{ie:'72% I',sn:'79% N',tf:'75% T',jp:'56% P',at:'60% A'}},
+  {date:'2024-12-12', tag:'',   type:'ENTP-A', name:'辩论家',   ie:49, sn:77, tf:60, jp:53, at:67, raw:{ie:'51% E',sn:'77% N',tf:'60% T',jp:'53% P',at:'67% A'}},
+  {date:'2024-12-23', tag:'',   type:'INTP-A', name:'逻辑学家', ie:81, sn:78, tf:59, jp:63, at:61, raw:{ie:'81% I',sn:'78% N',tf:'59% T',jp:'63% P',at:'61% A'}},
+  {date:'2025-04-24', tag:'',   type:'INFP-A', name:'调停者',   ie:88, sn:82, tf:49, jp:73, at:81, raw:{ie:'88% I',sn:'82% N',tf:'51% F',jp:'73% P',at:'81% A'}},
+  {date:'2025-08-01', tag:'',   type:'INTJ-A', name:'建筑师',   ie:79, sn:88, tf:64, jp:49, at:72, raw:{ie:'79% I',sn:'88% N',tf:'64% T',jp:'51% J',at:'72% A'}},
+  {date:'2025-08-13', tag:'',   type:'INTP-A', name:'逻辑学家', ie:87, sn:85, tf:67, jp:60, at:72, raw:{ie:'87% I',sn:'85% N',tf:'67% T',jp:'60% P',at:'72% A'}},
+  {date:'2025-08-19', tag:'',   type:'INTP-A', name:'逻辑学家', ie:79, sn:82, tf:67, jp:60, at:81, raw:{ie:'79% I',sn:'82% N',tf:'67% T',jp:'60% P',at:'81% A'}},
+  {date:'2025-09-21', tag:'',   type:'INTP-A', name:'逻辑学家', ie:76, sn:79, tf:60, jp:68, at:67, raw:{ie:'76% I',sn:'79% N',tf:'60% T',jp:'68% P',at:'67% A'}},
+  {date:'2025-10-27', tag:'',   type:'INFP-A', name:'调停者',   ie:93, sn:83, tf:48, jp:61, at:68, raw:{ie:'93% I',sn:'83% N',tf:'52% F',jp:'61% P',at:'68% A'}},
+  {date:'2026-02-27', tag:'',   type:'INTP-A', name:'逻辑学家', ie:89, sn:67, tf:63, jp:67, at:71, raw:{ie:'89% I',sn:'67% N',tf:'63% T',jp:'67% P',at:'71% A'}},
+];
+const xLabels = records.map(r => r.date + (r.tag ? ' '+r.tag : ''));
+const dims = [
+  {key:'ie', label:'I/E（内向-外向）', color:'#58a6ff', pole:'I'},
+  {key:'sn', label:'S/N（实感-直觉）', color:'#3fb950', pole:'N'},
+  {key:'tf', label:'T/F（思考-情感）', color:'#f0883e', pole:'T'},
+  {key:'jp', label:'J/P（判断-感知）', color:'#bc8cff', pole:'P'},
+  {key:'at', label:'A/T（自信-动荡）', color:'#ec6a9c', pole:'A'},
+];
+const typeColor = {'INTP-A':'#58a6ff','INFP-A':'#bc8cff','INTJ-A':'#3fb950','ENTP-A':'#f0883e'};
+
+// ---- 顶部 badge ----
+const counts = {};
+records.forEach(r => counts[r.type] = (counts[r.type]||0)+1);
+document.getElementById('badgeRow').innerHTML =
+  Object.entries(counts).sort((a,b)=>b[1]-a[1])
+   .map(([t,n])=>`<span class="badge"><b style="color:${typeColor[t]}">${t}</b> ×${n}</span>`).join('') +
+  `<span class="badge">测试次数 <b>${records.length}</b></span>`;
+
+// ---- 图1：趋势 ----
+echarts.init(document.getElementById('trend')).setOption({
+  backgroundColor:'transparent',
+  tooltip:{trigger:'axis',backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
+    formatter:p=>{const i=p[0].dataIndex; let s=`<b>${xLabels[i]}</b> · ${records[i].type} ${records[i].name}<br/>`;
+      p.forEach(it=>{const d=dims.find(d=>d.label===it.seriesName); s+=`${it.marker}${it.seriesName}: <b>${records[i].raw[d.key]}</b> （锚定值 ${it.value}）<br/>`;});
+      return s;}},
+  legend:{data:dims.map(d=>d.label),textStyle:{color:'#9aa7b4'},top:0,type:'scroll'},
+  grid:{left:48,right:24,top:48,bottom:70},
+  xAxis:{type:'category',data:xLabels,axisLabel:{color:'#9aa7b4',rotate:38,fontSize:11},
+    axisLine:{lineStyle:{color:'#2a3441'}}},
+  yAxis:{type:'value',min:40,max:100,name:'锚定极 %',nameTextStyle:{color:'#9aa7b4'},
+    axisLabel:{color:'#9aa7b4',formatter:'{value}%'},splitLine:{lineStyle:{color:'#1c2330'}}},
+  series:dims.map(d=>({
+    name:d.label,type:'line',smooth:true,symbolSize:7,
+    data:records.map(r=>r[d.key]),itemStyle:{color:d.color},lineStyle:{width:2.2,color:d.color},
+    markLine: d.key==='ie' ? {silent:true,symbol:'none',
+      data:[{yAxis:50,label:{formatter:'50% 临界线',color:'#f85149',position:'insideEndTop'},
+        lineStyle:{color:'#f85149',type:'dashed',width:1.5}}]} : undefined
+  }))
+});
+
+// ---- 图2a：浮动区间 ----
+const rangeData = dims.map(d=>{
+  const vals = records.map(r=>r[d.key]); return {label:d.label.split('（')[0], pole:d.pole,
+    min:Math.min(...vals), max:Math.max(...vals), color:d.color};
+}).reverse();
+echarts.init(document.getElementById('range')).setOption({
+  backgroundColor:'transparent',
+  title:{text:'各维度取值区间 (min–max)',left:'center',textStyle:{color:'#e6edf3',fontSize:14}},
+  tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
+    formatter:p=>`${rangeData[p.dataIndex].label}（锚定 ${rangeData[p.dataIndex].pole}）<br/>区间 <b>${rangeData[p.dataIndex].min}% – ${rangeData[p.dataIndex].max}%</b>`},
+  grid:{left:60,right:30,top:46,bottom:30},
+  xAxis:{type:'value',min:40,max:100,axisLabel:{color:'#9aa7b4',formatter:'{value}%'},
+    splitLine:{lineStyle:{color:'#1c2330'}}},
+  yAxis:{type:'category',data:rangeData.map(d=>d.label),axisLabel:{color:'#e6edf3'},
+    axisLine:{lineStyle:{color:'#2a3441'}}},
+  series:[
+    {type:'bar',stack:'x',itemStyle:{color:'transparent'},data:rangeData.map(d=>d.min),silent:true},
+    {type:'bar',stack:'x',data:rangeData.map((d,i)=>({value:d.max-d.min,itemStyle:{color:d.color,borderRadius:6}})),
+     barWidth:16,
+     markLine:{silent:true,symbol:'none',data:[{xAxis:50,label:{formatter:'50%',color:'#f85149'},
+       lineStyle:{color:'#f85149',type:'dashed',width:1.5}}]},
+     label:{show:true,position:'right',color:'#9aa7b4',fontSize:11,
+       formatter:p=>rangeData[p.dataIndex].min+'–'+rangeData[p.dataIndex].max}}
+  ]
+});
+
+// ---- 图2b：翻转次数 ----
+const flipData = dims.map(d=>{
+  // 主导极 = 锚定极；翻转 = 锚定值 < 50
+  const flips = records.filter(r=>r[d.key]<50).length;
+  return {label:d.label.split('（')[0], flips, color:d.color};
+});
+echarts.init(document.getElementById('flips')).setOption({
+  backgroundColor:'transparent',
+  title:{text:'临界翻转次数（锚定极越线）',left:'center',textStyle:{color:'#e6edf3',fontSize:14}},
+  tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
+    formatter:p=>`${flipData[p.dataIndex].label}<br/>越过 50% 临界 <b>${p.value}</b> 次`},
+  grid:{left:60,right:30,top:46,bottom:30},
+  xAxis:{type:'value',min:0,max:3,interval:1,axisLabel:{color:'#9aa7b4'},splitLine:{lineStyle:{color:'#1c2330'}}},
+  yAxis:{type:'category',data:flipData.map(d=>d.label).reverse(),axisLabel:{color:'#e6edf3'},
+    axisLine:{lineStyle:{color:'#2a3441'}}},
+  series:[{type:'bar',barWidth:16,data:flipData.map(d=>({value:d.flips,
+    itemStyle:{color:d.flips>0?'#f85149':'#2a3441',borderRadius:6}})).reverse(),
+    label:{show:true,position:'right',color:'#e6edf3',formatter:'{c} 次'}}]
+});
+
+// ---- 图3：类型时间线 ----
+echarts.init(document.getElementById('timeline')).setOption({
+  backgroundColor:'transparent',
+  tooltip:{trigger:'item',backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
+    formatter:p=>{const r=records[p.dataIndex];return `<b>${xLabels[p.dataIndex]}</b><br/>${r.type} · ${r.name}`;}},
+  grid:{left:48,right:24,top:30,bottom:70},
+  xAxis:{type:'category',data:xLabels,axisLabel:{color:'#9aa7b4',rotate:38,fontSize:11},
+    axisLine:{lineStyle:{color:'#2a3441'}}},
+  yAxis:{type:'category',data:['ENTP-A','INTJ-A','INFP-A','INTP-A'],axisLabel:{color:'#9aa7b4'},
+    axisLine:{lineStyle:{color:'#2a3441'}},splitLine:{lineStyle:{color:'#1c2330'}}},
+  series:[{
+    type:'scatter',symbolSize:18,
+    data:records.map((r,i)=>({value:[i, r.type], itemStyle:{color:typeColor[r.type]}})),
+    markLine:{silent:true,symbol:'none',lineStyle:{color:'#2a3441',type:'solid',width:1},
+      data:records.map((r,i)=> i>0 ? [{coord:[i-1,records[i-1].type]},{coord:[i,r.type]}] : null).filter(Boolean)}
+  }]
+});
+
+// ---- 数据表 ----
+let html = '<thead><tr><th>测试日期</th><th>类型</th><th>称号</th>'+
+  '<th>I/E</th><th>S/N</th><th>T/F</th><th>J/P</th><th>A/T</th></tr></thead><tbody>';
+records.forEach(r=>{
+  const tc = 't-'+r.type.split('-')[0];
+  const cell = (key)=>{const flipped = r[key]<50; return `<td class="${flipped?'flip':''}">${r.raw[key]}</td>`;};
+  html += `<tr><td>${r.date}${r.tag?' '+r.tag:''}</td><td class="${tc}">${r.type}</td><td style="color:var(--muted)">${r.name}</td>`+
+    cell('ie')+cell('sn')+cell('tf')+cell('jp')+cell('at')+'</tr>';
+});
+html += '</tbody>';
+document.getElementById('dataTable').innerHTML = html;
+
+// 响应式
+window.addEventListener('resize',()=>{
+  document.querySelectorAll('.chart').forEach(el=>{const c=echarts.getInstanceByDom(el); if(c)c.resize();});
+});
+</script>
+</body>
+</html>
