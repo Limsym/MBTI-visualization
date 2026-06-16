@@ -3,48 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MBTI 测试数据可视化分析</title>
+<title>MBTI 动态人格 · 时间敏感分析</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <style>
   :root{
     --bg:#0e1117; --panel:#161b22; --panel2:#1c2330; --border:#2a3441;
     --text:#e6edf3; --muted:#9aa7b4; --accent:#58a6ff;
     --I:#58a6ff; --N:#3fb950; --T:#f0883e; --P:#bc8cff; --A:#ec6a9c;
-    --warn:#f85149;
+    --warn:#f85149; --ok:#3fb950;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--text);
-    font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,sans-serif;
-    line-height:1.6;}
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,sans-serif;line-height:1.65;}
   .wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px;}
-  header h1{font-size:28px;margin:0 0 6px;}
+  header h1{font-size:27px;margin:0 0 6px;}
   header p{color:var(--muted);margin:0 0 4px;}
-  .badge-row{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px;}
-  .badge{background:var(--panel);border:1px solid var(--border);border-radius:999px;
-    padding:6px 14px;font-size:13px;color:var(--muted);}
-  .badge b{color:var(--text);}
-  section{background:var(--panel);border:1px solid var(--border);border-radius:14px;
-    padding:22px 24px;margin-top:26px;}
-  section h2{font-size:19px;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+  .note{color:var(--muted);font-size:13px;background:var(--panel2);border:1px solid var(--border);
+    border-radius:10px;padding:12px 14px;margin-top:14px;}
+  .note b{color:var(--text);}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-top:26px;}
+  section h2{font-size:19px;margin:0 0 4px;}
   section .sub{color:var(--muted);font-size:14px;margin:0 0 16px;}
-  .chart{width:100%;height:420px;}
-  .chart.tall{height:460px;}
-  .chart.short{height:300px;}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-  @media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+  .chart{width:100%;height:430px;} .chart.short{height:320px;}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;}
+  .btn{background:var(--panel2);border:1px solid var(--border);color:var(--muted);border-radius:8px;
+    padding:6px 13px;font-size:13px;cursor:pointer;transition:.15s;}
+  .btn:hover{color:var(--text);}
+  .btn.active{color:#fff;border-color:transparent;}
+  .seg{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;}
+  select{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;
+    padding:6px 10px;font-size:13px;}
+  .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr);}}
+  .card{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+  .card .dim{font-size:12px;color:var(--muted);}
+  .card .letter{font-size:30px;font-weight:800;margin:2px 0;}
+  .card .val{font-size:13px;color:var(--text);}
+  .card .band{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:999px;margin-top:7px;}
+  .chip.ok{background:rgba(63,185,80,.15);color:#56d364;border:1px solid rgba(63,185,80,.35);}
+  .chip.mid{background:rgba(240,136,62,.15);color:#f0883e;border:1px solid rgba(240,136,62,.35);}
+  .chip.no{background:rgba(248,81,73,.15);color:#ff7b72;border:1px solid rgba(248,81,73,.4);}
+  .verdict{margin-top:16px;text-align:center;font-size:15px;color:var(--muted);}
+  .verdict b{font-size:20px;color:var(--text);letter-spacing:1px;}
   table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
   th,td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);}
   th{color:var(--muted);font-weight:600;}
-  td.t-INTP{color:var(--I);} td.t-INFP{color:var(--P);}
-  td.t-INTJ{color:var(--N);} td.t-ENTP{color:var(--T);}
+  td.t-INTP{color:var(--I);} td.t-INFP{color:var(--P);} td.t-INTJ{color:var(--N);} td.t-ENTP{color:var(--T);}
   .flip{color:var(--warn);font-weight:700;}
-  .insight{display:flex;gap:14px;align-items:flex-start;padding:14px 0;
-    border-bottom:1px solid var(--border);}
+  .insight{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);}
   .insight:last-child{border-bottom:none;}
-  .insight .ico{font-size:22px;line-height:1.2;}
-  .insight .body b{color:var(--text);}
-  .insight .body{color:var(--muted);font-size:14.5px;}
-  .key{color:var(--text);}
+  .insight .ico{font-size:22px;}
+  .insight .body{color:var(--muted);font-size:14.5px;} .insight .body b{color:var(--text);} .key{color:var(--text);}
   .legend-note{color:var(--muted);font-size:12.5px;margin-top:10px;}
   code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12.5px;color:var(--accent);}
   footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px;}
@@ -54,74 +64,96 @@
 <div class="wrap">
 
   <header>
-    <h1>🧭 MBTI 测试数据可视化分析</h1>
-    <p>13 次测试 · 跨度 2024-06-29 → 2026-02-27 · 主导类型 <b style="color:var(--I)">INTP-A 逻辑学家</b></p>
-    <div class="badge-row" id="badgeRow"></div>
-    <p class="legend-note">说明：每个维度的百分比已统一锚定到固定一极（I / N / T / P / A），便于在同一坐标轴上比较。
-    例如原始数据 <code>51% E</code> 换算为 I = 49，<code>52% F</code> 换算为 T = 48。<b>50% 是临界线，越线即字母翻转。</b></p>
+    <h1>🧭 MBTI 动态人格 · 时间敏感分析</h1>
+    <p>13 次测试 · 2024-06-29 → 2026-02-27 · 主导内核 <b style="color:var(--I)">INTP-A</b></p>
+    <div class="note">
+      <b>建模假设：人是历史的。</b> 这里<u>不</u>把数据当作对某个固定真值的重复测量，而是当作一条会随时间漂移的潜在轨迹 θ(t) + 测量噪声。
+      用<b>实时间核的高斯过程（GP）</b>重建每个维度的 θ(t)。它自动做到：同日两点不当 2 个独立样本、密集簇不被过度加权、时间真空处不确定带自动变宽。
+      每个维度的百分比已锚定到固定一极（I/N/T/P/A），<b>50% = 字母翻转的临界线</b>。
+    </div>
   </header>
 
-  <!-- 1. 趋势图 -->
+  <!-- ① GP 轨迹 -->
   <section>
-    <h2>① 四维度百分比随时间变化趋势</h2>
-    <p class="sub">折线越靠近中间红色 50% 临界线，该维度越"摇摆"。可点击图例切换显示。</p>
-    <div id="trend" class="chart tall"></div>
-    <p class="legend-note">纵轴 = 锚定极的百分比（越高越偏向该极）。S/N 与 A/T 始终远离临界线，是你最稳的两个锚。</p>
-  </section>
-
-  <!-- 2. 临界维度分析 -->
-  <section>
-    <h2>② 临界维度分析 · 谁在 50% 边缘摇摆？</h2>
-    <p class="sub">浮动条 = 每个维度 13 次测试的取值区间（min–max）；越贴近红色 50% 线、甚至跨过，越"危险"。右图统计每个维度越过临界线、导致字母翻转的次数。</p>
-    <div class="grid2">
-      <div id="range" class="chart"></div>
-      <div id="flips" class="chart"></div>
+    <h2>① 潜在轨迹 θ(t) · 把"漂移"和"噪声"分开</h2>
+    <p class="sub">阴影带 = 真实潜在值的 95% 可信区间；它有多宽，就代表数据对那一刻的你有多不确定。空点 = 单次原始测试（含噪声）。</p>
+    <div class="controls">
+      <span style="color:var(--muted);font-size:13px;margin-right:4px">维度</span>
+      <button class="btn" data-dim="ie">I/E</button>
+      <button class="btn" data-dim="sn">S/N</button>
+      <button class="btn" data-dim="tf">T/F</button>
+      <button class="btn" data-dim="jp">J/P</button>
+      <button class="btn" data-dim="at">A/T</button>
+      <span class="seg">
+        假设漂移速度
+        <select id="ellSel">
+          <option value="200">慢（ℓ=200天，倾向解释成噪声）</option>
+          <option value="120" selected>中（ℓ=120天）</option>
+          <option value="60">快（ℓ=60天，倾向解释成真漂移）</option>
+        </select>
+      </span>
     </div>
-    <p class="legend-note">区间跨过 50% 线 = 该维度在不同测试中出现过两种字母 → 这正是你类型变化的根源。</p>
+    <div id="gp" class="chart"></div>
+    <p class="legend-note">拖动"漂移速度"会改变故事：n=13 的数据<b>无法</b>自行判定你漂移得快还是慢，所以结论取决于这个先验。曲线越平、带越宽，就是越诚实地承认"分不清"。</p>
   </section>
 
-  <!-- 3. 类型时间线 -->
+  <!-- ② 当前的你 -->
   <section>
-    <h2>③ 类型时间线 · 每次切换由哪个临界维度驱动</h2>
-    <p class="sub">非 INTP 的每一次出现，都恰好对应某一个临界维度短暂越线。内核始终是 INTP-A。</p>
+    <h2>② 当前的你（θ 在今天的估计）</h2>
+    <p class="sub">把轨迹外推到今天（2026-06-16，距上次测试约 3.5 个月）。带越宽 = 越久没测、越不确定。<b>区间跨过 50% = 这个维度此刻在你身上是"真未定"，不是某一边。</b></p>
+    <div id="cards" class="cards"></div>
+    <div class="verdict" id="verdict"></div>
+  </section>
+
+  <!-- ③ 真实时间轴趋势 -->
+  <section>
+    <h2>③ 五维度原始观测（真实时间间隔）</h2>
+    <p class="sub">横轴按真实日期，立刻看出哪里是密集簇（2024-12、2025-08 各三连测）、哪里是 4 个月真空。这正是必须用时间敏感模型的理由。</p>
+    <div id="trend" class="chart"></div>
+  </section>
+
+  <!-- ④ 类型时间线 -->
+  <section>
+    <h2>④ 类型时间线 · 每次"变身"只换一个字母</h2>
+    <p class="sub">你出现过的 4 种类型都是 INTP 的"一字母邻居"，从没两个字母同时翻转 → 数据里不存在第二个人格。</p>
     <div id="timeline" class="chart short"></div>
   </section>
 
-  <!-- 4. 数据表 -->
+  <!-- ⑤ 数据表 -->
   <section>
-    <h2>④ 原始数据（已标注临界翻转）</h2>
-    <p class="sub">红色高亮 = 该次测试中越过 50% 临界、与主导极相反的维度。</p>
+    <h2>⑤ 原始数据</h2>
+    <p class="sub">红色 = 该次越过 50% 临界、与主导极相反的维度。</p>
     <div style="overflow-x:auto"><table id="dataTable"></table></div>
   </section>
 
-  <!-- 5. 文字结论 -->
+  <!-- ⑥ 解读 -->
   <section>
-    <h2>⑤ 综合解读</h2>
+    <h2>⑥ 这到底如何说明你的"动态人格"</h2>
     <div class="insight"><div class="ico">🧱</div><div class="body">
-      <b>两个铁打的锚：N 与 A。</b> 直觉(N) 全程 67%–88%、自信(A) 全程 51%–81%，从未靠近临界线。
-      <span class="key">"NA" 是你人格中最确定的底色——抽象思维 + 情绪稳定。</span></div></div>
-    <div class="insight"><div class="ico">🧲</div><div class="body">
-      <b>内向(I) 极稳，仅一次例外。</b> 13 次里 12 次为 I（61%–93%），只有 2024-12-12 微跌到 49（51% E），
-      催生了唯一一次 <span style="color:var(--T)">ENTP 辩论家</span>。属于噪声级波动。</div></div>
+      <b>稳定层：IN__-A 几乎不动。</b> 直觉(N)、内向(I)、自信(A) 三条轨迹全程稳定、可信带不靠近 50%。
+      即使允许它们漂移，模型也找不到漂移的证据 —— <span class="key">这是你确定的人格底色，不是噪声。</span></div></div>
     <div class="insight"><div class="ico">⚖️</div><div class="body">
-      <b>真正的摇摆维度是 T/F。</b> 思考(T) 取值 48%–89%，波动幅度最大，并两次跌破 50%
-      （2025-04-24 与 2025-10-27）→ 两次变成 <span style="color:var(--P)">INFP 调停者</span>。
-      <span class="key">在"逻辑判断"与"价值判断"之间，你处于真正的临界平衡。</span></div></div>
+      <b>真未定层：T/F 的可信带跨在 50% 线上。</b> 这才是"动态人格"的正确含义 ——
+      不是你一会儿 T 一会儿 F 地"乱跳"，而是<span class="key">在理性判断与价值判断之间，你结构性地坐在临界点上</span>，
+      数据无法（也许本就不该）把你钉死在某一边。这是一种真实的认知弹性，不是不稳定。</div></div>
     <div class="insight"><div class="ico">🔀</div><div class="body">
-      <b>J/P 次摇摆。</b> 你绝大多数时候是 P（感知型，52%–73%），但 2025-08-01 一次跌到 49（51% J）→
-      短暂的 <span style="color:var(--N)">INTJ 建筑师</span>。计划性是你的次级临界点。</div></div>
+      <b>次摇摆：J/P 偏感知但带稍宽。</b> 默认灵活(P)，偶尔被秩序吸引(那次 INTJ)。比 T/F 稳，但不像 I/N/A 那样铁。</div></div>
+    <div class="insight"><div class="ico">⏳</div><div class="body">
+      <b>关于"变化"的诚实话。</b> 你的数据有两个三连测密集簇 + 一个 4 个月真空，n 只有 13。
+      所以任何"我这一两年变了"的说法，都要看可信带：<span class="key">A(自信)有微弱上行迹象，但带很宽，不足以下定论</span>。
+      模型的态度是——宁可承认"分不清漂移还是噪声"，也不画一条假装确定的成长曲线。</div></div>
     <div class="insight"><div class="ico">🎯</div><div class="body">
-      <b>一句话画像：</b> 你是一个<span class="key">高度稳定的 INTP-A（逻辑学家）</span>，
-      内核 = 内向直觉 + 自信，唯一真实的内在张力在 <b>T↔F</b>（理性 vs 共情），其次在 <b>P↔J</b>（灵活 vs 计划）。
-      所谓"类型变来变去"，本质是这两个临界维度的小幅越线，而非性格漂移。</div></div>
+      <b>一句话：</b> 你是一个<span class="key">潜在轨迹高度稳定的 INTP-A</span>，唯一真实"活着"的维度是 <b>T↔F</b>——
+      它不是在两个类型间跳，而是长期停在临界带上。你的"动态性"= 一个稳定内核 + 一条坐在 50% 线上的轴，而非人格漂移。</div></div>
+    <p class="legend-note">方法论：GP 用同日两点(2024-06-29)锚定噪声 σ_n；簇内点因高时间相关被自动降权；带宽随时间真空扩大。
+    改变"漂移速度"先验会改变结论强度，这本身就是 n=13 下最该被看见的事实。</p>
   </section>
 
-  <footer>数据来源：用户 MBTI 测试历史 · 可视化由 ECharts 生成 · 鼠标悬停查看每次测试的原始百分比</footer>
+  <footer>时间敏感建模 · 高斯过程轨迹重建 · 悬停查看每点的原始百分比与潜在估计</footer>
 </div>
 
 <script>
-// ---- 数据：按时间升序。anchored = 锚定极的百分比；raw = 原始标注 ----
-const POLE = {ie:'I', sn:'N', tf:'T', jp:'P', at:'A'};
+// ===== 数据（升序）。anchored=锚定极%，raw=原始标注 =====
 const records = [
   {date:'2024-06-29', tag:'#1', type:'INTP-A', name:'逻辑学家', ie:61, sn:86, tf:56, jp:60, at:63, raw:{ie:'61% I',sn:'86% N',tf:'56% T',jp:'60% P',at:'63% A'}},
   {date:'2024-06-29', tag:'#2', type:'INTP-A', name:'逻辑学家', ie:64, sn:88, tf:64, jp:52, at:57, raw:{ie:'64% I',sn:'88% N',tf:'64% T',jp:'52% P',at:'57% A'}},
@@ -137,126 +169,161 @@ const records = [
   {date:'2025-10-27', tag:'',   type:'INFP-A', name:'调停者',   ie:93, sn:83, tf:48, jp:61, at:68, raw:{ie:'93% I',sn:'83% N',tf:'52% F',jp:'61% P',at:'68% A'}},
   {date:'2026-02-27', tag:'',   type:'INTP-A', name:'逻辑学家', ie:89, sn:67, tf:63, jp:67, at:71, raw:{ie:'89% I',sn:'67% N',tf:'63% T',jp:'67% P',at:'71% A'}},
 ];
-const xLabels = records.map(r => r.date + (r.tag ? ' '+r.tag : ''));
+const TODAY = '2026-06-16';
+const DAY = 86400000;
+const t0 = Date.parse(records[0].date);
+records.forEach(r => r.t = (Date.parse(r.date) - t0) / DAY);   // 天偏移
+const todayOff = (Date.parse(TODAY) - t0) / DAY;
+
 const dims = [
-  {key:'ie', label:'I/E（内向-外向）', color:'#58a6ff', pole:'I'},
-  {key:'sn', label:'S/N（实感-直觉）', color:'#3fb950', pole:'N'},
-  {key:'tf', label:'T/F（思考-情感）', color:'#f0883e', pole:'T'},
-  {key:'jp', label:'J/P（判断-感知）', color:'#bc8cff', pole:'P'},
-  {key:'at', label:'A/T（自信-动荡）', color:'#ec6a9c', pole:'A'},
+  {key:'ie', short:'I/E', label:'I/E（内向-外向）', color:'#58a6ff', pos:'I', neg:'E'},
+  {key:'sn', short:'S/N', label:'S/N（实感-直觉）', color:'#3fb950', pos:'N', neg:'S'},
+  {key:'tf', short:'T/F', label:'T/F（思考-情感）', color:'#f0883e', pos:'T', neg:'F'},
+  {key:'jp', short:'J/P', label:'J/P（判断-感知）', color:'#bc8cff', pos:'P', neg:'J'},
+  {key:'at', short:'A/T', label:'A/T（自信-动荡）', color:'#ec6a9c', pos:'A', neg:'T'},
 ];
 const typeColor = {'INTP-A':'#58a6ff','INFP-A':'#bc8cff','INTJ-A':'#3fb950','ENTP-A':'#f0883e'};
 
-// ---- 顶部 badge ----
-const counts = {};
-records.forEach(r => counts[r.type] = (counts[r.type]||0)+1);
-document.getElementById('badgeRow').innerHTML =
-  Object.entries(counts).sort((a,b)=>b[1]-a[1])
-   .map(([t,n])=>`<span class="badge"><b style="color:${typeColor[t]}">${t}</b> ×${n}</span>`).join('') +
-  `<span class="badge">测试次数 <b>${records.length}</b></span>`;
+// ===== 高斯过程 =====
+const SF2 = 12*12;   // 漂移方差 σ_f²
+const SN2 = 7*7;     // 观测噪声 σ_n²（由同日两点佐证）
+function kern(a,b,ell){ const d=a-b; return SF2*Math.exp(-(d*d)/(2*ell*ell)); }
+// Cholesky 分解（下三角 L，K=LLᵀ）
+function chol(A){const n=A.length,L=Array.from({length:n},()=>new Array(n).fill(0));
+  for(let i=0;i<n;i++)for(let j=0;j<=i;j++){let s=A[i][j];for(let k=0;k<j;k++)s-=L[i][k]*L[j][k];
+    if(i===j)L[i][j]=Math.sqrt(Math.max(s,1e-9));else L[i][j]=s/L[j][j];}return L;}
+function fsolve(L,b){const n=L.length,y=new Array(n);for(let i=0;i<n;i++){let s=b[i];
+  for(let k=0;k<i;k++)s-=L[i][k]*y[k];y[i]=s/L[i][i];}return y;}
+function bsolve(L,b){const n=L.length,x=new Array(n);for(let i=n-1;i>=0;i--){let s=b[i];
+  for(let k=i+1;k<n;k++)s-=L[k][i]*x[k];x[i]=s/L[i][i];}return x;}
+// 为某维度+某ℓ拟合，返回在任意 t* 预测 {mu,sd} 的函数
+function fitGP(key, ell){
+  const X=records.map(r=>r.t), Y=records.map(r=>r[key]);
+  const n=X.length, m=Y.reduce((a,b)=>a+b,0)/n;
+  const K=Array.from({length:n},(_,i)=>X.map((_,j)=>kern(X[i],X[j],ell)+(i===j?SN2+1e-6:0)));
+  const L=chol(K), alpha=bsolve(L, fsolve(L, Y.map(v=>v-m)));
+  return function(ts){
+    const ks=X.map(x=>kern(x,ts,ell));
+    let mu=m; for(let i=0;i<n;i++)mu+=ks[i]*alpha[i];
+    const v=fsolve(L,ks); let varr=kern(ts,ts,ell); for(let i=0;i<n;i++)varr-=v[i]*v[i];
+    return {mu, sd:Math.sqrt(Math.max(varr,0))};
+  };
+}
+const tsOf = off => t0 + off*DAY;   // 天偏移 → 时间戳
 
-// ---- 图1：趋势 ----
+// ===== ① GP 轨迹图 =====
+const gpChart = echarts.init(document.getElementById('gp'));
+let curDim='tf', curEll=120;
+function renderGP(){
+  const d = dims.find(x=>x.key===curDim);
+  const pred = fitGP(curDim, curEll);
+  const N=120, lo=[],hi=[],mean=[];
+  for(let i=0;i<=N;i++){const off=todayOff*i/N, {mu,sd}=pred(off), ts=tsOf(off);
+    lo.push([ts, +(mu-1.96*sd).toFixed(2)]); hi.push([ts,+(mu+1.96*sd).toFixed(2)]); mean.push([ts,+mu.toFixed(2)]);}
+  const band = hi.map((p,i)=>[p[0], +(p[1]-lo[i][1]).toFixed(2)]);
+  const pts = records.map(r=>[tsOf(r.t), r[d.key], r]);
+  gpChart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'axis',backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
+      formatter:ps=>{const ts=ps[0].axisValue; let s=new Date(+ts).toISOString().slice(0,10)+'<br/>';
+        const mp=mean.find(m=>m[0]===+ts||Math.abs(m[0]-ts)<DAY/2);
+        ps.forEach(p=>{if(p.seriesName==='潜在估计 θ(t)')s+=`潜在估计: <b>${p.value[1]}%</b><br/>`;
+          if(p.seriesName==='单次测试')s+=`原始测试: <b>${p.value[1]}%</b><br/>`;});
+        return s;},axisPointer:{type:'line'}},
+    legend:{data:['潜在估计 θ(t)','95% 可信带','单次测试'],textStyle:{color:'#9aa7b4'},top:0},
+    grid:{left:46,right:24,top:42,bottom:40},
+    xAxis:{type:'time',axisLabel:{color:'#9aa7b4'},axisLine:{lineStyle:{color:'#2a3441'}}},
+    yAxis:{type:'value',min:30,max:100,name:d.pos+' %',nameTextStyle:{color:'#9aa7b4'},
+      axisLabel:{color:'#9aa7b4',formatter:'{value}%'},splitLine:{lineStyle:{color:'#1c2330'}}},
+    series:[
+      {name:'lo',type:'line',data:lo,stack:'b',symbol:'none',lineStyle:{opacity:0},areaStyle:{opacity:0},silent:true,z:1},
+      {name:'95% 可信带',type:'line',data:band,stack:'b',symbol:'none',lineStyle:{opacity:0},
+        areaStyle:{color:d.color,opacity:0.16},z:1},
+      {name:'潜在估计 θ(t)',type:'line',data:mean,smooth:true,symbol:'none',
+        lineStyle:{color:d.color,width:2.6},z:3,
+        markLine:{silent:true,symbol:'none',data:[{yAxis:50,label:{formatter:'50% 临界',color:'#f85149',position:'insideEndTop'},
+          lineStyle:{color:'#f85149',type:'dashed',width:1.4}},
+          {xAxis:tsOf(todayOff),label:{formatter:'今天',color:'#9aa7b4'},lineStyle:{color:'#3a4350',type:'dotted'}}]}},
+      {name:'单次测试',type:'scatter',data:pts.map(p=>[p[0],p[1]]),symbolSize:9,z:4,
+        itemStyle:{color:'transparent',borderColor:d.color,borderWidth:2}},
+    ]
+  }, true);
+}
+document.querySelectorAll('.btn[data-dim]').forEach(b=>b.style.cssText+=`;`);
+function setDimButtons(){document.querySelectorAll('.btn[data-dim]').forEach(b=>{
+  const on=b.dataset.dim===curDim; b.classList.toggle('active',on);
+  b.style.background=on?dims.find(d=>d.key===b.dataset.dim).color:''; b.style.color=on?'#fff':'';});}
+document.querySelectorAll('.btn[data-dim]').forEach(b=>b.onclick=()=>{curDim=b.dataset.dim;setDimButtons();renderGP();});
+document.getElementById('ellSel').onchange=e=>{curEll=+e.target.value;renderGP();renderCards();};
+
+// ===== ② 当前的你 =====
+function renderCards(){
+  let html='', determined=[], letters={};
+  dims.forEach(d=>{
+    const {mu,sd}=fitGP(d.key,curEll)(todayOff);
+    const lo=mu-1.96*sd, hi=mu+1.96*sd;
+    const straddle = lo<50 && hi>50;
+    const letter = mu>=50 ? d.pos : d.neg;
+    let chip, label;
+    if(straddle){chip='no'; label='真未定'; letters[d.key]='('+d.pos+'/'+d.neg+'?)';}
+    else if(Math.min(Math.abs(lo-50),Math.abs(hi-50))<8){chip='mid'; label='较确定'; letters[d.key]=letter;}
+    else{chip='ok'; label='确定'; letters[d.key]=letter; if(d.key!=='at')determined.push(letter);}
+    html+=`<div class="card"><div class="dim">${d.label.split('（')[0]}</div>
+      <div class="letter" style="color:${straddle?'#ff7b72':d.color}">${straddle?d.pos+'/'+d.neg:letter}</div>
+      <div class="val">θ ≈ <b>${mu.toFixed(0)}%</b> ${d.pos}</div>
+      <div class="band">95%区间 ${Math.max(lo,0).toFixed(0)}–${Math.min(hi,100).toFixed(0)}%</div>
+      <span class="chip ${chip}">${label}</span></div>`;
+  });
+  document.getElementById('cards').innerHTML=html;
+  const typeStr = letters.ie+letters.sn+letters.tf+letters.jp+'-'+letters.at;
+  document.getElementById('verdict').innerHTML =
+    `模型对"今天的你"的最佳读数：<br/><b>${typeStr}</b><br/>`+
+    `<span style="font-size:13px">核心 IN__-A 稳固；标红处表示此刻数据无法把你钉在某一边——那正是你真实的"动态"所在。</span>`;
+}
+
+// ===== ③ 真实时间轴趋势 =====
 echarts.init(document.getElementById('trend')).setOption({
   backgroundColor:'transparent',
   tooltip:{trigger:'axis',backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
-    formatter:p=>{const i=p[0].dataIndex; let s=`<b>${xLabels[i]}</b> · ${records[i].type} ${records[i].name}<br/>`;
-      p.forEach(it=>{const d=dims.find(d=>d.label===it.seriesName); s+=`${it.marker}${it.seriesName}: <b>${records[i].raw[d.key]}</b> （锚定值 ${it.value}）<br/>`;});
-      return s;}},
-  legend:{data:dims.map(d=>d.label),textStyle:{color:'#9aa7b4'},top:0,type:'scroll'},
-  grid:{left:48,right:24,top:48,bottom:70},
-  xAxis:{type:'category',data:xLabels,axisLabel:{color:'#9aa7b4',rotate:38,fontSize:11},
-    axisLine:{lineStyle:{color:'#2a3441'}}},
-  yAxis:{type:'value',min:40,max:100,name:'锚定极 %',nameTextStyle:{color:'#9aa7b4'},
-    axisLabel:{color:'#9aa7b4',formatter:'{value}%'},splitLine:{lineStyle:{color:'#1c2330'}}},
-  series:dims.map(d=>({
-    name:d.label,type:'line',smooth:true,symbolSize:7,
-    data:records.map(r=>r[d.key]),itemStyle:{color:d.color},lineStyle:{width:2.2,color:d.color},
-    markLine: d.key==='ie' ? {silent:true,symbol:'none',
-      data:[{yAxis:50,label:{formatter:'50% 临界线',color:'#f85149',position:'insideEndTop'},
-        lineStyle:{color:'#f85149',type:'dashed',width:1.5}}]} : undefined
-  }))
-});
-
-// ---- 图2a：浮动区间 ----
-const rangeData = dims.map(d=>{
-  const vals = records.map(r=>r[d.key]); return {label:d.label.split('（')[0], pole:d.pole,
-    min:Math.min(...vals), max:Math.max(...vals), color:d.color};
-}).reverse();
-echarts.init(document.getElementById('range')).setOption({
-  backgroundColor:'transparent',
-  title:{text:'各维度取值区间 (min–max)',left:'center',textStyle:{color:'#e6edf3',fontSize:14}},
-  tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
-    formatter:p=>`${rangeData[p.dataIndex].label}（锚定 ${rangeData[p.dataIndex].pole}）<br/>区间 <b>${rangeData[p.dataIndex].min}% – ${rangeData[p.dataIndex].max}%</b>`},
-  grid:{left:60,right:30,top:46,bottom:30},
-  xAxis:{type:'value',min:40,max:100,axisLabel:{color:'#9aa7b4',formatter:'{value}%'},
+    formatter:ps=>{const ts=ps[0].axisValue;const r=records.find(r=>Math.abs(tsOf(r.t)-ts)<DAY);
+      let s=new Date(+ts).toISOString().slice(0,10)+(r?` · ${r.type} ${r.name}`:'')+'<br/>';
+      ps.forEach(p=>s+=`${p.marker}${p.seriesName}: <b>${p.value[1]}%</b><br/>`);return s;}},
+  legend:{data:dims.map(d=>d.short),textStyle:{color:'#9aa7b4'},top:0},
+  grid:{left:46,right:24,top:42,bottom:40},
+  xAxis:{type:'time',axisLabel:{color:'#9aa7b4'},axisLine:{lineStyle:{color:'#2a3441'}}},
+  yAxis:{type:'value',min:40,max:100,axisLabel:{color:'#9aa7b4',formatter:'{value}%'},
     splitLine:{lineStyle:{color:'#1c2330'}}},
-  yAxis:{type:'category',data:rangeData.map(d=>d.label),axisLabel:{color:'#e6edf3'},
-    axisLine:{lineStyle:{color:'#2a3441'}}},
-  series:[
-    {type:'bar',stack:'x',itemStyle:{color:'transparent'},data:rangeData.map(d=>d.min),silent:true},
-    {type:'bar',stack:'x',data:rangeData.map((d,i)=>({value:d.max-d.min,itemStyle:{color:d.color,borderRadius:6}})),
-     barWidth:16,
-     markLine:{silent:true,symbol:'none',data:[{xAxis:50,label:{formatter:'50%',color:'#f85149'},
-       lineStyle:{color:'#f85149',type:'dashed',width:1.5}}]},
-     label:{show:true,position:'right',color:'#9aa7b4',fontSize:11,
-       formatter:p=>rangeData[p.dataIndex].min+'–'+rangeData[p.dataIndex].max}}
-  ]
+  series:dims.map(d=>({name:d.short,type:'line',smooth:true,symbolSize:6,
+    data:records.map(r=>[tsOf(r.t),r[d.key]]),itemStyle:{color:d.color},lineStyle:{width:1.8,color:d.color},
+    markLine:d.key==='ie'?{silent:true,symbol:'none',data:[{yAxis:50,lineStyle:{color:'#f85149',type:'dashed',width:1.2},
+      label:{formatter:'50%',color:'#f85149'}}]}:undefined}))
 });
 
-// ---- 图2b：翻转次数 ----
-const flipData = dims.map(d=>{
-  // 主导极 = 锚定极；翻转 = 锚定值 < 50
-  const flips = records.filter(r=>r[d.key]<50).length;
-  return {label:d.label.split('（')[0], flips, color:d.color};
-});
-echarts.init(document.getElementById('flips')).setOption({
-  backgroundColor:'transparent',
-  title:{text:'临界翻转次数（锚定极越线）',left:'center',textStyle:{color:'#e6edf3',fontSize:14}},
-  tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
-    formatter:p=>`${flipData[p.dataIndex].label}<br/>越过 50% 临界 <b>${p.value}</b> 次`},
-  grid:{left:60,right:30,top:46,bottom:30},
-  xAxis:{type:'value',min:0,max:3,interval:1,axisLabel:{color:'#9aa7b4'},splitLine:{lineStyle:{color:'#1c2330'}}},
-  yAxis:{type:'category',data:flipData.map(d=>d.label).reverse(),axisLabel:{color:'#e6edf3'},
-    axisLine:{lineStyle:{color:'#2a3441'}}},
-  series:[{type:'bar',barWidth:16,data:flipData.map(d=>({value:d.flips,
-    itemStyle:{color:d.flips>0?'#f85149':'#2a3441',borderRadius:6}})).reverse(),
-    label:{show:true,position:'right',color:'#e6edf3',formatter:'{c} 次'}}]
-});
-
-// ---- 图3：类型时间线 ----
+// ===== ④ 类型时间线 =====
 echarts.init(document.getElementById('timeline')).setOption({
   backgroundColor:'transparent',
   tooltip:{trigger:'item',backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
-    formatter:p=>{const r=records[p.dataIndex];return `<b>${xLabels[p.dataIndex]}</b><br/>${r.type} · ${r.name}`;}},
-  grid:{left:48,right:24,top:30,bottom:70},
-  xAxis:{type:'category',data:xLabels,axisLabel:{color:'#9aa7b4',rotate:38,fontSize:11},
-    axisLine:{lineStyle:{color:'#2a3441'}}},
+    formatter:p=>{const r=records[p.dataIndex];return `${r.date}${r.tag?' '+r.tag:''}<br/>${r.type} · ${r.name}`;}},
+  grid:{left:64,right:24,top:24,bottom:40},
+  xAxis:{type:'time',axisLabel:{color:'#9aa7b4'},axisLine:{lineStyle:{color:'#2a3441'}}},
   yAxis:{type:'category',data:['ENTP-A','INTJ-A','INFP-A','INTP-A'],axisLabel:{color:'#9aa7b4'},
     axisLine:{lineStyle:{color:'#2a3441'}},splitLine:{lineStyle:{color:'#1c2330'}}},
-  series:[{
-    type:'scatter',symbolSize:18,
-    data:records.map((r,i)=>({value:[i, r.type], itemStyle:{color:typeColor[r.type]}})),
-    markLine:{silent:true,symbol:'none',lineStyle:{color:'#2a3441',type:'solid',width:1},
-      data:records.map((r,i)=> i>0 ? [{coord:[i-1,records[i-1].type]},{coord:[i,r.type]}] : null).filter(Boolean)}
-  }]
+  series:[{type:'scatter',symbolSize:16,
+    data:records.map(r=>({value:[tsOf(r.t),r.type],itemStyle:{color:typeColor[r.type]}}))}]
 });
 
-// ---- 数据表 ----
-let html = '<thead><tr><th>测试日期</th><th>类型</th><th>称号</th>'+
-  '<th>I/E</th><th>S/N</th><th>T/F</th><th>J/P</th><th>A/T</th></tr></thead><tbody>';
-records.forEach(r=>{
-  const tc = 't-'+r.type.split('-')[0];
-  const cell = (key)=>{const flipped = r[key]<50; return `<td class="${flipped?'flip':''}">${r.raw[key]}</td>`;};
-  html += `<tr><td>${r.date}${r.tag?' '+r.tag:''}</td><td class="${tc}">${r.type}</td><td style="color:var(--muted)">${r.name}</td>`+
-    cell('ie')+cell('sn')+cell('tf')+cell('jp')+cell('at')+'</tr>';
-});
-html += '</tbody>';
-document.getElementById('dataTable').innerHTML = html;
+// ===== ⑤ 数据表 =====
+let html='<thead><tr><th>日期</th><th>类型</th><th>称号</th><th>I/E</th><th>S/N</th><th>T/F</th><th>J/P</th><th>A/T</th></tr></thead><tbody>';
+records.forEach(r=>{const tc='t-'+r.type.split('-')[0];
+  const cell=k=>`<td class="${r[k]<50?'flip':''}">${r.raw[k]}</td>`;
+  html+=`<tr><td>${r.date}${r.tag?' '+r.tag:''}</td><td class="${tc}">${r.type}</td><td style="color:var(--muted)">${r.name}</td>`
+    +cell('ie')+cell('sn')+cell('tf')+cell('jp')+cell('at')+'</tr>';});
+document.getElementById('dataTable').innerHTML=html+'</tbody>';
 
-// 响应式
-window.addEventListener('resize',()=>{
-  document.querySelectorAll('.chart').forEach(el=>{const c=echarts.getInstanceByDom(el); if(c)c.resize();});
-});
+// 初始化
+setDimButtons(); renderGP(); renderCards();
+window.addEventListener('resize',()=>document.querySelectorAll('.chart').forEach(el=>{
+  const c=echarts.getInstanceByDom(el); if(c)c.resize();}));
 </script>
 </body>
 </html>
