@@ -65,7 +65,7 @@
 
   <header>
     <h1>🧭 MBTI 动态人格 · 有界轨迹模型</h1>
-    <p>13 次测试 · 2024-06-29 → 2026-02-27 · 主导内核 <b style="color:var(--I)">INTP-A</b></p>
+    <p>14 次测试 · 2024-06-29 → 2026-06-16 · 主导内核 <b style="color:var(--I)">INTP-A</b></p>
     <div class="note">
       <b>模型升级：从高斯过程 → 有界状态空间。</b> 数据是被限制在 [0,100] 的比例,旧的 RBF 高斯过程会把可信带顶到 100% 以上(定义冲突)。
       现在改用:<b>logit 连接</b>(潜在值无界、映射回来自动落在 0–100 且不对称)+ <b>OU 均值回归</b>(人格会被拉回个人基线,而非自由漂移)
@@ -109,7 +109,7 @@
   <!-- ③ 当前的你 -->
   <section>
     <h2>③ 当前的你（θ 外推到今天 · 概率化）</h2>
-    <p class="sub">外推到今天(2026-06-16,距上次测试约 3.5 个月)。每张卡给出潜在估计、95% 有界区间,以及<b>你此刻偏向该字母的概率</b>。</p>
+    <p class="sub">今天(2026-06-16)刚做了第 14 次测试,估计由最新数据直接锚定,可信带因此收窄。每张卡给出潜在估计、95% 有界区间,以及<b>你此刻偏向该字母的概率</b>。</p>
     <div id="cards" class="cards"></div>
     <div class="verdict" id="verdict"></div>
   </section>
@@ -180,6 +180,7 @@ const records = [
   {date:'2025-09-21', tag:'',   type:'INTP-A', name:'逻辑学家', ie:76, sn:79, tf:60, jp:68, at:67, raw:{ie:'76% I',sn:'79% N',tf:'60% T',jp:'68% P',at:'67% A'}},
   {date:'2025-10-27', tag:'',   type:'INFP-A', name:'调停者',   ie:93, sn:83, tf:48, jp:61, at:68, raw:{ie:'93% I',sn:'83% N',tf:'52% F',jp:'61% P',at:'68% A'}},
   {date:'2026-02-27', tag:'',   type:'INTP-A', name:'逻辑学家', ie:89, sn:67, tf:63, jp:67, at:71, raw:{ie:'89% I',sn:'67% N',tf:'63% T',jp:'67% P',at:'71% A'}},
+  {date:'2026-06-16', tag:'',   type:'INTP-A', name:'逻辑学家', ie:84, sn:78, tf:63, jp:65, at:85, raw:{ie:'84% I',sn:'78% N',tf:'63% T',jp:'65% P',at:'85% A'}},
 ];
 const TODAY='2026-06-16', DAY=86400000, t0=Date.parse(records[0].date);
 records.forEach(r=>r.t=(Date.parse(r.date)-t0)/DAY);
