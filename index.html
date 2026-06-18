@@ -4,89 +4,110 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MBTI 动态人格 · 有界轨迹模型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Blinker:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <style>
   :root{
-    --bg:#0e1117; --panel:#161b22; --panel2:#1c2330; --border:#2a3441;
-    --text:#e6edf3; --muted:#9aa7b4; --accent:#58a6ff;
-    --I:#58a6ff; --N:#3fb950; --T:#f0883e; --P:#bc8cff; --A:#ec6a9c;
-    --warn:#f85149;
+    --bg:#f3f5f9; --panel:#ffffff; --panel2:#f5f7fb; --border:#e7eaf1;
+    --text:#2f3149; --muted:#7a8095; --line:#eef1f6;
+    --ie:#4a9fc0; --sn:#e0a23a; --tf:#33a474; --jp:#8c6bb0; --at:#e0566b;
+    --flip:#e0395c;
+    --shadow:0 4px 20px rgba(40,44,80,.06); --shadow-sm:0 2px 8px rgba(40,44,80,.05);
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--text);
-    font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,sans-serif;line-height:1.65;}
-  .wrap{max-width:1080px;margin:0 auto;padding:32px 20px 80px;}
-  header h1{font-size:27px;margin:0 0 6px;}
-  header p{color:var(--muted);margin:0 0 4px;}
-  .note{color:var(--muted);font-size:13px;background:var(--panel2);border:1px solid var(--border);
-    border-radius:10px;padding:12px 14px;margin-top:14px;}
+    font-family:'Blinker',-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,sans-serif;line-height:1.65;}
+  .wrap{max-width:1060px;margin:0 auto;padding:34px 20px 80px;}
+  header h1{font-size:30px;font-weight:800;margin:0 0 6px;letter-spacing:.2px;}
+  header p{color:var(--muted);margin:0 0 4px;font-weight:600;}
+  .note{color:#5b617a;font-size:13.5px;background:var(--panel);border:1px solid var(--border);
+    border-radius:18px;padding:15px 18px;margin-top:16px;box-shadow:var(--shadow-sm);}
   .note b{color:var(--text);}
-  section{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-top:26px;}
-  section h2{font-size:19px;margin:0 0 4px;}
-  section .sub{color:var(--muted);font-size:14px;margin:0 0 16px;}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:22px;padding:24px 26px;margin-top:24px;box-shadow:var(--shadow);}
+  section h2{font-size:20px;font-weight:800;margin:0 0 4px;}
+  section .sub{color:var(--muted);font-size:14px;margin:0 0 18px;font-weight:600;}
   .chart{width:100%;height:430px;} .chart.short{height:330px;}
   .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;}
-  .btn{background:var(--panel2);border:1px solid var(--border);color:var(--muted);border-radius:8px;
-    padding:6px 13px;font-size:13px;cursor:pointer;transition:.15s;}
-  .btn:hover{color:var(--text);}
+  .btn{background:var(--panel2);border:1px solid var(--border);color:var(--muted);border-radius:999px;
+    padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;}
+  .btn:hover{color:var(--text);box-shadow:var(--shadow-sm);}
   .btn.active{color:#fff;border-color:transparent;}
-  .seg{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;}
-  select{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;
-    padding:6px 10px;font-size:13px;}
-  .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
-  @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr);}}
-  .card{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
-  .card .dim{font-size:12px;color:var(--muted);}
-  .card .letter{font-size:30px;font-weight:800;margin:2px 0;}
-  .card .val{font-size:13px;color:var(--text);}
-  .card .band{font-size:11.5px;color:var(--muted);margin-top:3px;}
-  .chip{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:999px;margin-top:7px;}
-  .chip.ok{background:rgba(63,185,80,.15);color:#56d364;border:1px solid rgba(63,185,80,.35);}
-  .chip.mid{background:rgba(240,136,62,.15);color:#f0883e;border:1px solid rgba(240,136,62,.35);}
-  .chip.no{background:rgba(248,81,73,.15);color:#ff7b72;border:1px solid rgba(248,81,73,.4);}
-  .verdict{margin-top:16px;text-align:center;font-size:15px;color:var(--muted);}
-  .verdict b{font-size:20px;color:var(--text);letter-spacing:1px;}
+  .seg{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;font-weight:600;}
+  select{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:999px;
+    padding:7px 14px;font-size:13px;font-family:inherit;font-weight:600;}
+  /* 性征条 */
+  .bars{display:flex;flex-direction:column;gap:20px;}
+  .bar-row .bar-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .bar-aspect{font-size:14px;color:var(--muted);font-weight:700;display:flex;align-items:center;gap:7px;}
+  .qbubble{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;
+    background:#e7eaf1;color:#9aa0b2;font-size:11px;font-weight:700;cursor:help;}
+  .bar-val{font-size:15px;font-weight:800;}
+  .bar-pct{font-size:12px;font-weight:700;color:var(--muted);margin-left:6px;}
+  .track{position:relative;height:14px;border-radius:999px;background:#edf0f5;margin:11px 0 7px;}
+  .track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;opacity:.16;}
+  .track .ci{position:absolute;top:-3px;bottom:-3px;border-radius:7px;opacity:.34;}
+  .track .mid{position:absolute;left:50%;top:-5px;bottom:-5px;width:2px;background:#cfd4df;transform:translateX(-1px);}
+  .track .knob{position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:#fff;
+    border:4px solid;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(40,44,80,.18);}
+  .bar-poles{display:flex;justify-content:space-between;font-size:12px;color:#9aa0b2;font-weight:600;}
+  .bar-poles .on{color:var(--text);font-weight:800;}
+  .chip{display:inline-block;font-size:11px;padding:3px 10px;border-radius:999px;font-weight:700;margin-left:8px;vertical-align:middle;}
+  .chip.ok{background:rgba(51,164,116,.14);color:#1f8a5b;}
+  .chip.mid{background:rgba(224,162,58,.16);color:#b9791a;}
+  .chip.no{background:rgba(224,57,92,.12);color:#c42a4e;}
+  .verdict{margin-top:20px;text-align:center;font-size:15px;color:var(--muted);font-weight:600;}
+  .verdict b{font-size:22px;color:var(--text);letter-spacing:1.5px;}
   table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
-  th,td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);}
-  th{color:var(--muted);font-weight:600;}
-  td.t-INTP{color:var(--I);} td.t-INFP{color:var(--P);} td.t-INTJ{color:var(--N);} td.t-ENTP{color:var(--T);}
-  .flip{color:var(--warn);font-weight:700;}
-  .insight{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);}
+  th,td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:700;}
+  td.t-INTP{color:var(--ie);font-weight:700;} td.t-INFP{color:var(--jp);font-weight:700;}
+  td.t-INTJ{color:#6b4f9e;font-weight:700;} td.t-ENTP{color:#e0883a;font-weight:700;}
+  .flipc{color:var(--flip);font-weight:800;}
+  .insight{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--line);}
   .insight:last-child{border-bottom:none;}
   .insight .ico{font-size:22px;}
-  .insight .body{color:var(--muted);font-size:14.5px;} .insight .body b{color:var(--text);} .key{color:var(--text);}
-  .legend-note{color:var(--muted);font-size:12.5px;margin-top:10px;}
-  code{background:var(--panel2);padding:1px 6px;border-radius:5px;font-size:12.5px;color:var(--accent);}
-  footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px;}
+  .insight .body{color:#5b617a;font-size:14.5px;} .insight .body b{color:var(--text);} .key{color:var(--text);font-weight:700;}
+  .legend-note{color:var(--muted);font-size:12.5px;margin-top:12px;font-weight:600;}
+  code{background:var(--panel2);padding:1px 6px;border-radius:6px;font-size:12.5px;color:#3a7fa0;}
+  footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px;font-weight:600;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <header>
-    <h1>🧭 MBTI 动态人格 · 有界轨迹模型</h1>
-    <p>14 次测试 · 2024-06-29 → 2026-06-16 · 主导内核 <b style="color:var(--I)">INTP-A</b></p>
+    <h1>🧭 你的动态人格 · 有界轨迹模型</h1>
+    <p>14 次测试 · 2024-06-29 → 2026-06-16 · 主导内核 <b style="color:var(--ie)">INTP-A</b></p>
     <div class="note">
-      <b>模型升级：从高斯过程 → 有界状态空间。</b> 数据是被限制在 [0,100] 的比例,旧的 RBF 高斯过程会把可信带顶到 100% 以上(定义冲突)。
-      现在改用:<b>logit 连接</b>(潜在值无界、映射回来自动落在 0–100 且不对称)+ <b>OU 均值回归</b>(人格会被拉回个人基线,而非自由漂移)
-      + <b>Beta 似然</b>(噪声随取值变化,且每维度按 NERIS 信度 α 不同:T/F 最吵)+ <b>Kalman 滤波 / RTS 平滑</b>(对稀疏不规则时点的最优精确解)。
-      50% = 字母翻转的临界线。
+      <b>这是把 14 次测试当成一条会随时间漂移的轨迹来重建,而非简单平均。</b>
+      每个维度用:<b>logit 连接</b>(可信带永远落在 0–100% 且不对称)+ <b>OU 均值回归</b>(人格被拉回个人基线)
+      + <b>Beta 似然</b>(噪声随取值变化,各维度按 NERIS 信度 α 不同,T/F 最吵)+ <b>Kalman / RTS 平滑</b>(稀疏不规则时点的最优解)。
+      50% 是字母翻转的临界线。
     </div>
   </header>
 
-  <!-- ① 轨迹 -->
+  <!-- ① 当前的你 · 性征条 -->
   <section>
-    <h2>① 潜在轨迹 θ(t) · 有界、不对称的可信带</h2>
-    <p class="sub">阴影带 = 真实潜在特质的 95% 可信区间,<b>永远落在 0–100% 内</b>,靠近边界时自动变窄、变不对称。空点 = 单次原始测试。</p>
+    <h2>① 当前的你</h2>
+    <p class="sub">今天(2026-06-16)刚做了第 14 次测试。圆点 = 当前潜在估计,<b>淡色区块 = 95% 可信区间</b>(它跨过中线越多,这一维越"未定")。</p>
+    <div id="bars" class="bars"></div>
+    <div class="verdict" id="verdict"></div>
+  </section>
+
+  <!-- ② 轨迹 -->
+  <section>
+    <h2>② 潜在轨迹 θ(t) · 有界、不对称的可信带</h2>
+    <p class="sub">阴影带 = 真实潜在特质的 95% 可信区间,永远落在 0–100% 内。空点 = 单次原始测试。</p>
     <div class="controls">
-      <span style="color:var(--muted);font-size:13px;margin-right:4px">维度</span>
+      <span style="color:var(--muted);font-size:13px;font-weight:700;margin-right:4px">维度</span>
       <button class="btn" data-dim="ie">I/E</button>
       <button class="btn" data-dim="sn">S/N</button>
       <button class="btn" data-dim="tf">T/F</button>
       <button class="btn" data-dim="jp">J/P</button>
       <button class="btn" data-dim="at">A/T</button>
-      <span class="seg">
-        回归基线时间尺度 τ
+      <span class="seg">回归基线时间尺度 τ
         <select id="tauSel">
           <option value="250">250天（回归快·更稳）</option>
           <option value="500" selected>500天（中）</option>
@@ -95,36 +116,28 @@
       </span>
     </div>
     <div id="traj" class="chart"></div>
-    <p class="legend-note">τ 来自人格稳定性文献(retest r≈0.7/年 ⇒ τ≈10³ 天)。τ 越小 = 越快被拉回基线 = 曲线越稳;越大 = 越像自由漂移。空档处带会朝你的基线收拢,而非凭空乱画。</p>
+    <p class="legend-note">τ 来自人格稳定性文献(retest r≈0.7/年 ⇒ τ≈10³ 天)。τ 越小 = 越快被拉回基线 = 曲线越稳。空档处带朝你的基线收拢。</p>
   </section>
 
-  <!-- ② 字母概率 -->
+  <!-- ③ 字母概率 -->
   <section>
-    <h2>② 字母概率轨迹 · P(你此刻偏向某一极)</h2>
-    <p class="sub">把"你是 T 还是 F"换成一条概率曲线:P = 潜在值高于 50% 临界的后验概率。离 100%/0% 越近越笃定,贴着 50% 才是真正的"临界摇摆"。</p>
+    <h2>③ 字母概率轨迹 · P(你此刻偏向某一极)</h2>
+    <p class="sub">把"你是 T 还是 F"换成概率曲线:P = 潜在值高于 50% 临界的后验概率。贴近 100% 越笃定,贴着 50% 才是真"临界摇摆"。</p>
     <div id="prob" class="chart"></div>
-    <p class="legend-note">这是比硬标签诚实得多的输出:I / N / A 常年贴近 100%(几乎确定);<b>T/F 是唯一明显低于其余、且最常向 50% 下探的轴</b> —— 它"偏 T 但最活跃",不是非此即彼。</p>
-  </section>
-
-  <!-- ③ 当前的你 -->
-  <section>
-    <h2>③ 当前的你（θ 外推到今天 · 概率化）</h2>
-    <p class="sub">今天(2026-06-16)刚做了第 14 次测试,估计由最新数据直接锚定,可信带因此收窄。每张卡给出潜在估计、95% 有界区间,以及<b>你此刻偏向该字母的概率</b>。</p>
-    <div id="cards" class="cards"></div>
-    <div class="verdict" id="verdict"></div>
+    <p class="legend-note">I / N / A 常年贴近 100%(几乎确定);<b>T/F 是唯一明显偏低、最常向 50% 下探的轴</b> —— 偏 T 但最活跃,不是非此即彼。</p>
   </section>
 
   <!-- ④ 真实时间轴趋势 -->
   <section>
     <h2>④ 五维度原始观测（真实时间间隔）</h2>
-    <p class="sub">横轴按真实日期,立刻看出密集簇(2024-12、2025-08 各三连测)与 4 个月真空 —— 这正是必须用时间敏感模型的理由。</p>
+    <p class="sub">横轴按真实日期,立刻看出密集簇(2024-12、2025-08 各三连测)与 4 个月真空。</p>
     <div id="trend" class="chart"></div>
   </section>
 
   <!-- ⑤ 类型时间线 -->
   <section>
     <h2>⑤ 类型时间线 · 每次"变身"只换一个字母</h2>
-    <p class="sub">你出现过的 4 种类型都是 INTP 的"一字母邻居",从没两个字母同时翻转 → 数据里不存在第二个人格。</p>
+    <p class="sub">出现过的 4 种类型都是 INTP 的"一字母邻居",从没两个字母同时翻转。</p>
     <div id="timeline" class="chart short"></div>
   </section>
 
@@ -140,25 +153,19 @@
     <h2>⑦ 解读 · 这如何刻画你的"动态人格"</h2>
     <div class="insight"><div class="ico">🧱</div><div class="body">
       <b>近乎确定的内核:I、N、A。</b> 三条概率曲线常年贴着 100%,可信带远离临界线。
-      <span class="key">这是你确定的人格底色 —— 内向直觉 + 情绪自信,模型给不出它们会翻转的任何证据。</span></div></div>
+      <span class="key">这是你确定的人格底色 —— 内向直觉 + 情绪自信。</span></div></div>
     <div class="insight"><div class="ico">🌡️</div><div class="body">
-      <b>最活跃的轴:T/F(偏 T,但不笃定)。</b> 当前 P(T)≈85%,是五轴里最低、可信带最宽、唯一下界跌破 50% 的。
-      这与 NERIS 自报的信度一致 —— <span class="key">T/F 量表 α=0.75,本就是它们最测不准的维度。</span>
-      你"偏理性,但价值判断随时可能上来",这是真实的认知弹性,不是非黑即白。</div></div>
-    <div class="insight"><div class="ico">🔀</div><div class="body">
-      <b>次摇摆:J/P。</b> P(P)≈90%,绝大多数时候灵活(P),偶尔被秩序吸引(那次 INTJ)。比 T/F 稳,但不像 I/N/A 铁。</div></div>
-    <div class="insight"><div class="ico">⚖️</div><div class="body">
-      <b>有界模型修正了什么。</b> 旧的高斯过程把可信带顶到 102%、还假设噪声到处一样大。
-      新模型让带<span class="key">永远落在 0–100、靠近极端自动收窄、且按各维信度给不同噪声</span> ——
-      所以 T/F 的带本就该比 S/N 宽,这是有出处的,不是画上去的。</div></div>
+      <b>最活跃的轴:T/F(偏 T,但不笃定)。</b> 当前 P(T)≈90%+,却是五轴里最低、可信带最宽、唯一下界跌破 50% 的。
+      与 NERIS 自报一致 —— <span class="key">T/F 量表 α=0.75,本就最测不准。</span></div></div>
+    <div class="insight"><div class="ico">📈</div><div class="body">
+      <b>A 在上行。</b> 模型曾标注 A 有微弱上行迹象,第 14 次实测 A=85% 落在区间偏高处并把基线抬到 ~77% —— <span class="key">方向被预测对了。</span></div></div>
     <div class="insight"><div class="ico">⏳</div><div class="body">
-      <b>关于"变化"的诚实话。</b> n=13、两个三连测簇 + 4 个月真空,且只有汇总百分比。
-      模型用 OU 把空档处的你拉回基线,而非编造趋势;A(自信)有微弱上行迹象但带宽,不足定论。
-      <span class="key">想真正判定 T/F 是"天生临界"还是"测量噪声",需要保存逐题作答(IRT),而非只存最终百分比。</span></div></div>
+      <b>诚实话。</b> n=14、只有汇总百分比。OU 把空档处的你拉回基线,而非编造趋势。
+      <span class="key">单次命中 ≠ 模型被证明,持续命中才算 —— 建议每隔一两个月测一次、攒够 4–5 次算校准率。</span></div></div>
     <div class="insight"><div class="ico">🎯</div><div class="body">
-      <b>一句话:</b> 你是一个<span class="key">潜在轨迹高度稳定的 INTP-A</span>,内核 I/N/A 近乎确定;
-      唯一真正"活着"的维度是 <b>T↔F</b> —— 它偏 T 却最不笃定,长期在临界带上呼吸。你的"动态性" = 稳定内核 + 一条会呼吸的 T/F 轴。</div></div>
-    <p class="legend-note">方法:每维度 logit 连接 + OU 均值回归 + Beta(经 logit 高斯近似)观测 + Kalman/RTS 平滑;先验来自稳定性文献、同日两点(锚定噪声)、NERIS 各维 α。Kalman 平滑是稀疏纵向潜特质估计的标准最优解。</p>
+      <b>一句话:</b> 你是<span class="key">潜在轨迹高度稳定的 INTP-A</span>,内核 I/N/A 近乎确定;
+      唯一真正"活着"的维度是 <b>T↔F</b> —— 偏 T 却最不笃定,长期在临界带上呼吸。</div></div>
+    <p class="legend-note">方法:每维度 logit + OU 均值回归 + Beta(logit 高斯近似)+ Kalman/RTS;先验来自稳定性文献、同日两点、NERIS 各维 α。</p>
   </section>
 
   <footer>有界状态空间建模 · OU 均值回归 + Beta 似然 + Kalman/RTS 平滑 · 悬停查看每点细节</footer>
@@ -188,25 +195,23 @@ const todayOff=(Date.parse(TODAY)-t0)/DAY;
 const tsOf=off=>t0+off*DAY;
 
 const dims=[
-  {key:'ie',short:'I/E',label:'I/E（内向-外向）',color:'#58a6ff',pos:'I',neg:'E'},
-  {key:'sn',short:'S/N',label:'S/N（实感-直觉）',color:'#3fb950',pos:'N',neg:'S'},
-  {key:'tf',short:'T/F',label:'T/F（思考-情感）',color:'#f0883e',pos:'T',neg:'F'},
-  {key:'jp',short:'J/P',label:'J/P（判断-感知）',color:'#bc8cff',pos:'P',neg:'J'},
-  {key:'at',short:'A/T',label:'A/T（自信-动荡）',color:'#ec6a9c',pos:'A',neg:'T'},
+  {key:'ie',short:'I/E',aspect:'能量',color:'#4a9fc0',pos:'I',neg:'E',zPos:'内向',zNeg:'外向',tip:'内向 = 从独处中恢复精力'},
+  {key:'sn',short:'S/N',aspect:'心智',color:'#e0a23a',pos:'N',neg:'S',zPos:'天马行空',zNeg:'求真务实',tip:'直觉 = 偏好抽象、可能性'},
+  {key:'tf',short:'T/F',aspect:'天性',color:'#33a474',pos:'T',neg:'F',zPos:'理性思考',zNeg:'情感细腻',tip:'思考 = 决策偏重逻辑'},
+  {key:'jp',short:'J/P',aspect:'应对方式',color:'#8c6bb0',pos:'P',neg:'J',zPos:'随机应变',zNeg:'运筹帷幄',tip:'感知 = 偏好灵活、开放'},
+  {key:'at',short:'A/T',aspect:'身份特征',color:'#e0566b',pos:'A',neg:'T',zPos:'自信果断',zNeg:'情绪波动',tip:'自信 = 情绪稳定、抗压'},
 ];
-const typeColor={'INTP-A':'#58a6ff','INFP-A':'#bc8cff','INTJ-A':'#3fb950','ENTP-A':'#f0883e'};
+const typeColor={'INTP-A':'#4a9fc0','INFP-A':'#8c6bb0','INTJ-A':'#6b4f9e','ENTP-A':'#e0883a'};
 
 // ===== 模型：logit + OU + Beta(高斯近似) + Kalman/RTS =====
 const logit=p=>Math.log(p/(1-p)), logistic=x=>1/(1+Math.exp(-x));
 function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+0.3275911*x);
   const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
 const Phi=x=>0.5*(1+erf(x/Math.SQRT2));
-const ALPHA={ie:0.87,sn:0.78,tf:0.75,jp:0.82,at:0.80};   // NERIS 各维信度
-const PHI=k=>(ALPHA[k]/(1-ALPHA[k]))*6.6;                 // Beta 精度
-const SX=0.6;                                            // 平稳漂移 SD(logit)
-const NG=120;                                            // 网格点数
+const ALPHA={ie:0.87,sn:0.78,tf:0.75,jp:0.82,at:0.80};
+const PHI=k=>(ALPHA[k]/(1-ALPHA[k]))*6.6;
+const SX=0.6, NG=120;
 
-// 返回 {grid:[{ts,mid,lo,hi,pPos}], today:{mid,lo,hi,pPos}}
 function computeDim(key, tau){
   const obs=records.map(r=>{const p=Math.min(Math.max(r[key]/100,0.02),0.98);return {t:r.t,p,z:logit(p)};});
   const phi=PHI(key); obs.forEach(o=>o.R=1/((1+phi)*o.p*(1-o.p)));
@@ -230,35 +235,39 @@ function computeDim(key, tau){
   return {grid:out, today:out[NG]};
 }
 const cache={};
-function getDim(key,tau){const id=key+'@'+tau; return cache[id]||(cache[id]=computeDim(key,tau));}
+const getDim=(key,tau)=>cache[key+'@'+tau]||(cache[key+'@'+tau]=computeDim(key,tau));
 
-// ===== ① 轨迹图 =====
+// 浅色图表通用样式
+const AX={axisLabel:{color:'#7a8095'},axisLine:{lineStyle:{color:'#e7eaf1'}}};
+const SPLIT={lineStyle:{color:'#eef1f6'}};
+const TT={backgroundColor:'#ffffff',borderColor:'#e7eaf1',borderWidth:1,textStyle:{color:'#2f3149'},extraCssText:'box-shadow:0 4px 20px rgba(40,44,80,.1);border-radius:10px;'};
+const LEG={textStyle:{color:'#7a8095'}};
+
+// ===== ② 轨迹图 =====
 const trajChart=echarts.init(document.getElementById('traj'));
 let curDim='tf', curTau=500;
 function renderTraj(){
   const d=dims.find(x=>x.key===curDim), g=getDim(curDim,curTau).grid;
   const lo=g.map(p=>[p.ts,+p.lo.toFixed(2)]), mid=g.map(p=>[p.ts,+p.mid.toFixed(2)]);
   const band=g.map(p=>[p.ts,+(p.hi-p.lo).toFixed(2)]);
-  const pts=records.map(r=>[tsOf(r.t),r[d.key]]);
   trajChart.setOption({
-    backgroundColor:'transparent',
-    tooltip:{trigger:'axis',backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
-      formatter:ps=>{let s=new Date(+ps[0].axisValue).toISOString().slice(0,10)+'<br/>';
-        ps.forEach(p=>{if(p.seriesName==='潜在估计 θ(t)')s+=`潜在估计: <b>${p.value[1]}%</b><br/>`;
-          if(p.seriesName==='单次测试')s+=`原始测试: <b>${p.value[1]}%</b><br/>`;});return s;}},
-    legend:{data:['潜在估计 θ(t)','95% 可信带','单次测试'],textStyle:{color:'#9aa7b4'},top:0},
+    tooltip:Object.assign({trigger:'axis',formatter:ps=>{let s=new Date(+ps[0].axisValue).toISOString().slice(0,10)+'<br/>';
+      ps.forEach(p=>{if(p.seriesName==='潜在估计 θ(t)')s+=`潜在估计: <b>${p.value[1]}%</b><br/>`;
+        if(p.seriesName==='单次测试')s+=`原始测试: <b>${p.value[1]}%</b><br/>`;});return s;}},TT),
+    legend:Object.assign({data:['潜在估计 θ(t)','95% 可信带','单次测试'],top:0},LEG),
     grid:{left:46,right:24,top:42,bottom:40},
-    xAxis:{type:'time',axisLabel:{color:'#9aa7b4'},axisLine:{lineStyle:{color:'#2a3441'}}},
-    yAxis:{type:'value',min:30,max:100,name:d.pos+' %',nameTextStyle:{color:'#9aa7b4'},
-      axisLabel:{color:'#9aa7b4',formatter:'{value}%'},splitLine:{lineStyle:{color:'#1c2330'}}},
+    xAxis:Object.assign({type:'time'},AX),
+    yAxis:{type:'value',min:30,max:100,name:d.pos+' %',nameTextStyle:{color:'#7a8095'},
+      axisLabel:{color:'#7a8095',formatter:'{value}%'},splitLine:SPLIT},
     series:[
       {name:'lo',type:'line',data:lo,stack:'b',symbol:'none',lineStyle:{opacity:0},areaStyle:{opacity:0},silent:true,z:1},
-      {name:'95% 可信带',type:'line',data:band,stack:'b',symbol:'none',lineStyle:{opacity:0},areaStyle:{color:d.color,opacity:0.16},z:1},
-      {name:'潜在估计 θ(t)',type:'line',data:mid,smooth:true,symbol:'none',lineStyle:{color:d.color,width:2.6},z:3,
+      {name:'95% 可信带',type:'line',data:band,stack:'b',symbol:'none',lineStyle:{opacity:0},areaStyle:{color:d.color,opacity:0.18},z:1},
+      {name:'潜在估计 θ(t)',type:'line',data:mid,smooth:true,symbol:'none',lineStyle:{color:d.color,width:2.8},z:3,
         markLine:{silent:true,symbol:'none',data:[
-          {yAxis:50,label:{formatter:'50% 临界',color:'#f85149',position:'insideEndTop'},lineStyle:{color:'#f85149',type:'dashed',width:1.4}},
-          {xAxis:tsOf(todayOff),label:{formatter:'今天',color:'#9aa7b4'},lineStyle:{color:'#3a4350',type:'dotted'}}]}},
-      {name:'单次测试',type:'scatter',data:pts,symbolSize:9,z:4,itemStyle:{color:'transparent',borderColor:d.color,borderWidth:2}},
+          {yAxis:50,label:{formatter:'50% 临界',color:'#e0395c',position:'insideEndTop'},lineStyle:{color:'#e0395c',type:'dashed',width:1.4}},
+          {xAxis:tsOf(todayOff),label:{formatter:'今天',color:'#9aa0b2'},lineStyle:{color:'#cfd4df',type:'dotted'}}]}},
+      {name:'单次测试',type:'scatter',data:records.map(r=>[tsOf(r.t),r[d.key]]),symbolSize:9,z:4,
+        itemStyle:{color:'#fff',borderColor:d.color,borderWidth:2.4}},
     ]
   },true);
 }
@@ -267,82 +276,85 @@ function setBtns(){document.querySelectorAll('.btn[data-dim]').forEach(b=>{const
 document.querySelectorAll('.btn[data-dim]').forEach(b=>b.onclick=()=>{curDim=b.dataset.dim;setBtns();renderTraj();});
 document.getElementById('tauSel').onchange=e=>{curTau=+e.target.value;renderAll();};
 
-// ===== ② 字母概率图 =====
+// ===== ③ 字母概率图 =====
 const probChart=echarts.init(document.getElementById('prob'));
 function renderProb(){
   probChart.setOption({
-    backgroundColor:'transparent',
-    tooltip:{trigger:'axis',backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
-      formatter:ps=>{let s=new Date(+ps[0].axisValue).toISOString().slice(0,10)+'<br/>';
-        ps.forEach(p=>s+=`${p.marker}${p.seriesName}: <b>${p.value[1]}%</b><br/>`);return s;}},
-    legend:{data:dims.map(d=>'P('+d.pos+')'),textStyle:{color:'#9aa7b4'},top:0},
+    tooltip:Object.assign({trigger:'axis',formatter:ps=>{let s=new Date(+ps[0].axisValue).toISOString().slice(0,10)+'<br/>';
+      ps.forEach(p=>s+=`${p.marker}${p.seriesName}: <b>${p.value[1]}%</b><br/>`);return s;}},TT),
+    legend:Object.assign({data:dims.map(d=>'P('+d.pos+')'),top:0},LEG),
     grid:{left:46,right:24,top:42,bottom:40},
-    xAxis:{type:'time',axisLabel:{color:'#9aa7b4'},axisLine:{lineStyle:{color:'#2a3441'}}},
-    yAxis:{type:'value',min:0,max:100,name:'P(偏向正极) %',nameTextStyle:{color:'#9aa7b4'},
-      axisLabel:{color:'#9aa7b4',formatter:'{value}%'},splitLine:{lineStyle:{color:'#1c2330'}}},
+    xAxis:Object.assign({type:'time'},AX),
+    yAxis:Object.assign({type:'value',min:0,max:100,name:'P(偏向正极) %',nameTextStyle:{color:'#7a8095'},
+      axisLabel:{color:'#7a8095',formatter:'{value}%'}},{splitLine:SPLIT}),
     series:dims.map(d=>({name:'P('+d.pos+')',type:'line',smooth:true,symbol:'none',
-      data:getDim(d.key,curTau).grid.map(p=>[p.ts,+p.pPos.toFixed(1)]),lineStyle:{width:2,color:d.color},itemStyle:{color:d.color},
-      markLine:d.key==='ie'?{silent:true,symbol:'none',data:[{yAxis:50,lineStyle:{color:'#f85149',type:'dashed',width:1.2},
-        label:{formatter:'50%',color:'#f85149'}}]}:undefined}))
+      data:getDim(d.key,curTau).grid.map(p=>[p.ts,+p.pPos.toFixed(1)]),lineStyle:{width:2.4,color:d.color},itemStyle:{color:d.color},
+      markLine:d.key==='ie'?{silent:true,symbol:'none',data:[{yAxis:50,lineStyle:{color:'#e0395c',type:'dashed',width:1.2},
+        label:{formatter:'50%',color:'#e0395c'}}]}:undefined}))
   },true);
 }
 
-// ===== ③ 当前的你 =====
-function renderCards(){
+// ===== ① 当前的你 · 性征条 =====
+function renderBars(){
   let html='', letters={};
   dims.forEach(d=>{
     const t=getDim(d.key,curTau).today, pPos=t.pPos, conf=Math.max(pPos,100-pPos);
-    const letter=pPos>=50?d.pos:d.neg;
+    const towardPos=t.mid>=50, letter=pPos>=50?d.pos:d.neg;
+    const sideZh=towardPos?d.zPos:d.zNeg, sideVal=towardPos?t.mid:100-t.mid;
     let chip,label;
     if(conf>=95){chip='ok';label='确定';letters[d.key]=letter;}
     else if(conf>=75){chip='mid';label='较确定';letters[d.key]=letter;}
     else{chip='no';label='临界';letters[d.key]=letter+'?';}
-    html+=`<div class="card"><div class="dim">${d.label.split('（')[0]}</div>
-      <div class="letter" style="color:${conf<75?'#ff7b72':d.color}">${letter}</div>
-      <div class="val">θ ≈ <b>${t.mid.toFixed(0)}%</b> ${d.pos}</div>
-      <div class="band">95%区间 ${t.lo.toFixed(0)}–${t.hi.toFixed(0)}%</div>
-      <span class="chip ${chip}">P(${letter})=${(pPos>=50?pPos:100-pPos).toFixed(0)}% · ${label}</span></div>`;
+    html+=`<div class="bar-row">
+      <div class="bar-head">
+        <span class="bar-aspect">${d.aspect} <span class="qbubble" title="${d.tip}">?</span></span>
+        <span class="bar-val" style="color:${d.color}">${sideVal.toFixed(0)}% ${sideZh}
+          <span class="chip ${chip}">P(${letter})=${(pPos>=50?pPos:100-pPos).toFixed(0)}% · ${label}</span></span>
+      </div>
+      <div class="track">
+        <div class="fill" style="left:0;width:${t.mid.toFixed(1)}%;background:${d.color}"></div>
+        <div class="ci" style="left:${t.lo.toFixed(1)}%;width:${(t.hi-t.lo).toFixed(1)}%;background:${d.color}"></div>
+        <div class="mid"></div>
+        <div class="knob" style="left:${t.mid.toFixed(1)}%;border-color:${d.color}"></div>
+      </div>
+      <div class="bar-poles"><span class="${towardPos?'':'on'}">${d.zNeg}</span><span class="${towardPos?'on':''}">${d.zPos}</span></div>
+    </div>`;
   });
-  document.getElementById('cards').innerHTML=html;
+  document.getElementById('bars').innerHTML=html;
   const typeStr=letters.ie+letters.sn+letters.tf+letters.jp+'-'+letters.at;
   document.getElementById('verdict').innerHTML=
     `模型对"今天的你"的最佳读数:<br/><b>${typeStr}</b><br/>`+
-    `<span style="font-size:13px">核心 I/N/A 近乎确定;带"?"者表示此刻偏向虽明确、但信度不足以笃定 —— 那正是你真实"动态"所在。</span>`;
+    `<span style="font-size:13px">核心 I/N/A 近乎确定;带"?"者表示偏向虽明确、但信度不足以笃定。</span>`;
 }
 
-function renderAll(){renderTraj();renderProb();renderCards();}
+function renderAll(){renderBars();renderTraj();renderProb();}
 
 // ===== ④ 真实时间轴趋势 =====
 echarts.init(document.getElementById('trend')).setOption({
-  backgroundColor:'transparent',
-  tooltip:{trigger:'axis',backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
-    formatter:ps=>{const ts=ps[0].axisValue;const r=records.find(r=>Math.abs(tsOf(r.t)-ts)<DAY);
-      let s=new Date(+ts).toISOString().slice(0,10)+(r?` · ${r.type} ${r.name}`:'')+'<br/>';
-      ps.forEach(p=>s+=`${p.marker}${p.seriesName}: <b>${p.value[1]}%</b><br/>`);return s;}},
-  legend:{data:dims.map(d=>d.short),textStyle:{color:'#9aa7b4'},top:0},
+  tooltip:Object.assign({trigger:'axis',formatter:ps=>{const ts=ps[0].axisValue;const r=records.find(r=>Math.abs(tsOf(r.t)-ts)<DAY);
+    let s=new Date(+ts).toISOString().slice(0,10)+(r?` · ${r.type} ${r.name}`:'')+'<br/>';
+    ps.forEach(p=>s+=`${p.marker}${p.seriesName}: <b>${p.value[1]}%</b><br/>`);return s;}},TT),
+  legend:Object.assign({data:dims.map(d=>d.short),top:0},LEG),
   grid:{left:46,right:24,top:42,bottom:40},
-  xAxis:{type:'time',axisLabel:{color:'#9aa7b4'},axisLine:{lineStyle:{color:'#2a3441'}}},
-  yAxis:{type:'value',min:40,max:100,axisLabel:{color:'#9aa7b4',formatter:'{value}%'},splitLine:{lineStyle:{color:'#1c2330'}}},
+  xAxis:Object.assign({type:'time'},AX),
+  yAxis:Object.assign({type:'value',min:40,max:100,axisLabel:{color:'#7a8095',formatter:'{value}%'}},{splitLine:SPLIT}),
   series:dims.map(d=>({name:d.short,type:'line',smooth:true,symbolSize:6,data:records.map(r=>[tsOf(r.t),r[d.key]]),
-    itemStyle:{color:d.color},lineStyle:{width:1.8,color:d.color},
-    markLine:d.key==='ie'?{silent:true,symbol:'none',data:[{yAxis:50,lineStyle:{color:'#f85149',type:'dashed',width:1.2},label:{formatter:'50%',color:'#f85149'}}]}:undefined}))
+    itemStyle:{color:d.color},lineStyle:{width:2,color:d.color},
+    markLine:d.key==='ie'?{silent:true,symbol:'none',data:[{yAxis:50,lineStyle:{color:'#e0395c',type:'dashed',width:1.2},label:{formatter:'50%',color:'#e0395c'}}]}:undefined}))
 });
 
 // ===== ⑤ 类型时间线 =====
 echarts.init(document.getElementById('timeline')).setOption({
-  backgroundColor:'transparent',
-  tooltip:{trigger:'item',backgroundColor:'#1c2330',borderColor:'#2a3441',textStyle:{color:'#e6edf3'},
-    formatter:p=>{const r=records[p.dataIndex];return `${r.date}${r.tag?' '+r.tag:''}<br/>${r.type} · ${r.name}`;}},
+  tooltip:Object.assign({trigger:'item',formatter:p=>{const r=records[p.dataIndex];return `${r.date}${r.tag?' '+r.tag:''}<br/>${r.type} · ${r.name}`;}},TT),
   grid:{left:64,right:24,top:24,bottom:40},
-  xAxis:{type:'time',axisLabel:{color:'#9aa7b4'},axisLine:{lineStyle:{color:'#2a3441'}}},
-  yAxis:{type:'category',data:['ENTP-A','INTJ-A','INFP-A','INTP-A'],axisLabel:{color:'#9aa7b4'},
-    axisLine:{lineStyle:{color:'#2a3441'}},splitLine:{lineStyle:{color:'#1c2330'}}},
-  series:[{type:'scatter',symbolSize:16,data:records.map(r=>({value:[tsOf(r.t),r.type],itemStyle:{color:typeColor[r.type]}}))}]
+  xAxis:Object.assign({type:'time'},AX),
+  yAxis:Object.assign({type:'category',data:['ENTP-A','INTJ-A','INFP-A','INTP-A'],axisLabel:{color:'#7a8095'}},{splitLine:SPLIT,axisLine:{lineStyle:{color:'#e7eaf1'}}}),
+  series:[{type:'scatter',symbolSize:17,data:records.map(r=>({value:[tsOf(r.t),r.type],itemStyle:{color:typeColor[r.type]}}))}]
 });
 
 // ===== ⑥ 数据表 =====
 let html='<thead><tr><th>日期</th><th>类型</th><th>称号</th><th>I/E</th><th>S/N</th><th>T/F</th><th>J/P</th><th>A/T</th></tr></thead><tbody>';
-records.forEach(r=>{const tc='t-'+r.type.split('-')[0];const cell=k=>`<td class="${r[k]<50?'flip':''}">${r.raw[k]}</td>`;
+records.forEach(r=>{const tc='t-'+r.type.split('-')[0];const cell=k=>`<td class="${r[k]<50?'flipc':''}">${r.raw[k]}</td>`;
   html+=`<tr><td>${r.date}${r.tag?' '+r.tag:''}</td><td class="${tc}">${r.type}</td><td style="color:var(--muted)">${r.name}</td>`
     +cell('ie')+cell('sn')+cell('tf')+cell('jp')+cell('at')+'</tr>';});
 document.getElementById('dataTable').innerHTML=html+'</tbody>';
