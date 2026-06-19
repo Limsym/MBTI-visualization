@@ -20,43 +20,57 @@
 
 ---
 
-## 🚀 如何复刻成你自己的
+## 🚀 如何复刻 / 增删人物
 
 **你通常只需要改一个文件:[`data.js`](./data.js)。** `index.html` 不用动。
 
-### 1) 填进你的数据
-
-`data.js` 里的 `records`,每条记录只需 **日期 + 五个百分比**(`tag` 可选,用于标注同一天的多次测试):
+`data.js` 里是一个 **`PROFILES` 人物列表**,每个人一条;页面顶部有"查看对象"下拉,可在多人之间切换,每人各自独立建模。
 
 ```js
-const records = [
-  {date:'2024-06-29', tag:'#1', ie:61, sn:86, tf:56, jp:60, at:63},
-  {date:'2024-11-27',          ie:88, sn:84, tf:89, jp:66, at:51},
-  // …
+const PROFILES = [
+  {
+    id: 'me',
+    name: '我',
+    records: [
+      {date:'2024-06-29', tag:'#1', ie:61, sn:86, tf:56, jp:60, at:63},
+      {date:'2024-11-27',          ie:88, sn:84, tf:89, jp:66, at:51},
+      // …
+    ],
+    config: { /* 可选；省略 = 全自动 */ },
+  },
+  // 再加一个人，就再加一个 { id, name, records } …
 ];
 ```
 
+### 1) 数据 `records`
+
+每条记录只需 **日期 + 五个百分比**(`tag` 可选,标注同一天多测):
+
 - 数值 = 偏向**正极**的百分比,正极约定为 **I / N / T / P / A**。
   例如 16Personalities 显示 "61% 外向(E)" → 内向那一极是 `100 − 61 = 39`,即 `ie:39`。
-- **类型、16 型称号(逻辑学家/辩论家…)、`61% I` 这类文案、配色、日期范围、主导类型** 全部自动推导,你不用填。
+- **类型、16 型称号(逻辑学家/辩论家…)、`61% I` 文案、配色、日期范围、主导类型** 全部自动推导,不用填;记录乱序也会自动按日期排好。
 
-### 2)(可选)写你自己的解读文案
+### 2)(可选)解读文案 `config`
 
-`data.js` 里的 `CONFIG`,**每一项都可留 `null`** —— 留空时网页会**根据你的数据自动生成**一句中性但正确的话。想要自己的口吻,就把对应项写成字符串(支持 HTML):
+`config` **整体可省略**,或单项留 `null` —— 留空时网页会**按该人的数据自动生成**一句中性但正确的话。想要自己的口吻,就写成字符串(支持 HTML):
 
 ```js
-const CONFIG = {
+config: {
   title:    null,          // 大标题
-  subtitle: null,          // 副标题,null = "N 次测试 · 起 → 止 · 主导内核 XXXX-X"
-  defaultDim: null,        // 轨迹图默认高亮维度,null = 自动选最不笃定的轴
+  subtitle: null,          // 副标题,null = "名字 · N 次测试 · 起 → 止 · 主导内核 XXXX-X"
+  defaultDim: null,        // 轨迹图默认高亮维度 'ie'|'sn'|'tf'|'jp'|'at',null = 自动选最不笃定的轴
   dimNotes: { ie:null, sn:null, tf:null, jp:null, at:null },   // 五维 tip 个人尾注
   notes:    { bars:null, prob:null, trend:null, timeline:null },// 各图下方点评
   insights: null,          // ⑦ 解读要点,或填 [{icon:'🧱', html:'…'}, …]
   verdict:  null,          // ① 底部读数文案
-};
+}
 ```
 
-### 3) 查看
+### 3) 隐私 ⚠️
+
+公开部署到 GitHub Pages = **把这些数据公开**。给亲友建档时,`name` 请用**化名 / 缩写**(如 `'伴侣'`、`'A.L.'`),不要放真实姓名;或把仓库设为私有。
+
+### 4) 查看
 
 直接用浏览器打开 `index.html`,或推到 GitHub Pages。
 (需要联网:ECharts 与字体从 CDN 加载。)
@@ -94,7 +108,7 @@ const CONFIG = {
 
 | 文件 | 作用 |
 |---|---|
-| [`data.js`](./data.js) | **你要改的**:`records`(数据)+ `CONFIG`(解读,可选) |
+| [`data.js`](./data.js) | **你要改的**:`PROFILES` 人物列表,每人 = `records`(数据)+ `config`(解读,可选) |
 | [`index.html`](./index.html) | 引擎、模型、图表与样式;复刻时一般无需改动 |
 
 ## 致谢
