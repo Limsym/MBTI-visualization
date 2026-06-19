@@ -48,7 +48,6 @@
     border-radius:10px;padding:8px 12px;margin:8px 0 2px;}
   .bar-tip[hidden]{display:none;}
   .bar-val{font-size:15px;font-weight:800;}
-  .bar-pct{font-size:12px;font-weight:700;color:var(--muted);margin-left:6px;}
   .track{position:relative;height:14px;border-radius:999px;background:#edf0f5;margin:11px 0 7px;}
   .track .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;opacity:.16;}
   .track .ci{position:absolute;top:-3px;bottom:-3px;border-radius:7px;opacity:.34;}
@@ -66,8 +65,6 @@
   table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
   th,td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--line);}
   th{color:var(--muted);font-weight:700;}
-  td.t-INTP{color:var(--ie);font-weight:700;} td.t-INFP{color:var(--jp);font-weight:700;}
-  td.t-INTJ{color:#6b4f9e;font-weight:700;} td.t-ENTP{color:#e0883a;font-weight:700;}
   .flipc{color:var(--flip);font-weight:800;}
   .insight{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--line);}
   .insight:last-child{border-bottom:none;}
@@ -82,10 +79,10 @@
 <div class="wrap">
 
   <header>
-    <h1>🧭 你的动态人格 · 有界轨迹模型</h1>
-    <p>14 次测试 · 2024-06-29 → 2026-06-16 · 主导内核 <b style="color:var(--ie)">INTP-A</b></p>
+    <h1 id="title">🧭 你的动态人格 · 有界轨迹模型</h1>
+    <p id="hdrSub"></p>
     <div class="note">
-      <b>这是把 14 次测试当成一条会随时间漂移的轨迹来重建,而非简单平均。</b>
+      <b>这是把多次测试当成一条会随时间漂移的轨迹来重建,而非简单平均。</b>
       每个维度用:<b>logit 连接</b>(可信带永远落在 0–100% 且不对称)+ <b>OU 均值回归</b>(人格被拉回个人基线)
       + <b>Beta 似然</b>(噪声随取值变化,各维度按 NERIS 信度 α 不同,T/F 最吵)+ <b>Kalman / RTS 平滑</b>(稀疏不规则时点的最优解)。
       50% 是字母翻转的临界线。
@@ -95,7 +92,7 @@
   <!-- ① 当前的你 · 性征条 -->
   <section>
     <h2>① 当前的你</h2>
-    <p class="sub">今天(2026-06-16)刚做了第 14 次测试。圆点 = 当前潜在估计,<b>淡色区块 = 95% 可信区间</b>(它跨过中线越多,这一维越"未定")。</p>
+    <p class="sub" id="sub1"></p>
     <div id="bars" class="bars"></div>
     <div class="verdict" id="verdict"></div>
   </section>
@@ -128,20 +125,20 @@
     <h2>③ 字母概率轨迹 · P(你此刻偏向某一极)</h2>
     <p class="sub">把"你是 T 还是 F"换成概率曲线:P = 潜在值高于 50% 临界的后验概率。贴近 100% 越笃定,贴着 50% 才是真"临界摇摆"。</p>
     <div id="prob" class="chart"></div>
-    <p class="legend-note">I / N / A 常年贴近 100%(几乎确定);<b>T/F 是唯一明显偏低、最常向 50% 下探的轴</b> —— 偏 T 但最活跃,不是非此即彼。</p>
+    <p class="legend-note" id="note3"></p>
   </section>
 
   <!-- ④ 真实时间轴趋势 -->
   <section>
     <h2>④ 五维度原始观测（真实时间间隔）</h2>
-    <p class="sub">横轴按真实日期,立刻看出密集簇(2024-12、2025-08 各三连测)与 4 个月真空。</p>
+    <p class="sub" id="sub4"></p>
     <div id="trend" class="chart"></div>
   </section>
 
   <!-- ⑤ 类型时间线 -->
   <section>
     <h2>⑤ 类型时间线 · 每次"变身"只换一个字母</h2>
-    <p class="sub">出现过的 4 种类型都是 INTP 的"一字母邻居",从没两个字母同时翻转。</p>
+    <p class="sub" id="sub5"></p>
     <div id="timeline" class="chart short"></div>
   </section>
 
@@ -155,20 +152,7 @@
   <!-- ⑦ 解读 -->
   <section>
     <h2>⑦ 解读 · 这如何刻画你的"动态人格"</h2>
-    <div class="insight"><div class="ico">🧱</div><div class="body">
-      <b>近乎确定的内核:I、N、A。</b> 三条概率曲线常年贴着 100%,可信带远离临界线。
-      <span class="key">这是你确定的人格底色 —— 内向直觉 + 情绪自信。</span></div></div>
-    <div class="insight"><div class="ico">🌡️</div><div class="body">
-      <b>最活跃的轴:T/F(偏 T,但不笃定)。</b> 当前 P(T)≈90%+,却是五轴里最低、可信带最宽、唯一下界跌破 50% 的。
-      与 NERIS 自报一致 —— <span class="key">T/F 量表 α=0.75,本就最测不准。</span></div></div>
-    <div class="insight"><div class="ico">📈</div><div class="body">
-      <b>A 在上行。</b> 模型曾标注 A 有微弱上行迹象,第 14 次实测 A=85% 落在区间偏高处并把基线抬到 ~77% —— <span class="key">方向被预测对了。</span></div></div>
-    <div class="insight"><div class="ico">⏳</div><div class="body">
-      <b>诚实话。</b> n=14、只有汇总百分比。OU 把空档处的你拉回基线,而非编造趋势。
-      <span class="key">单次命中 ≠ 模型被证明,持续命中才算 —— 建议每隔一两个月测一次、攒够 4–5 次算校准率。</span></div></div>
-    <div class="insight"><div class="ico">🎯</div><div class="body">
-      <b>一句话:</b> 你是<span class="key">潜在轨迹高度稳定的 INTP-A</span>,内核 I/N/A 近乎确定;
-      唯一真正"活着"的维度是 <b>T↔F</b> —— 偏 T 却最不笃定,长期在临界带上呼吸。</div></div>
+    <div id="insights"></div>
     <p class="legend-note">方法:每维度 logit + OU 均值回归 + Beta(logit 高斯近似)+ Kalman/RTS;先验来自稳定性文献、同日两点、NERIS 各维 α。</p>
   </section>
 
@@ -176,41 +160,87 @@
 </div>
 
 <script>
-// ===== 数据 =====
-const records = [
-  {date:'2024-06-29', tag:'#1', type:'INTP-A', name:'逻辑学家', ie:61, sn:86, tf:56, jp:60, at:63, raw:{ie:'61% I',sn:'86% N',tf:'56% T',jp:'60% P',at:'63% A'}},
-  {date:'2024-06-29', tag:'#2', type:'INTP-A', name:'逻辑学家', ie:64, sn:88, tf:64, jp:52, at:57, raw:{ie:'64% I',sn:'88% N',tf:'64% T',jp:'52% P',at:'57% A'}},
-  {date:'2024-11-27', tag:'',   type:'INTP-A', name:'逻辑学家', ie:88, sn:84, tf:89, jp:66, at:51, raw:{ie:'88% I',sn:'84% N',tf:'89% T',jp:'66% P',at:'51% A'}},
-  {date:'2024-12-05', tag:'',   type:'INTP-A', name:'逻辑学家', ie:72, sn:79, tf:75, jp:56, at:60, raw:{ie:'72% I',sn:'79% N',tf:'75% T',jp:'56% P',at:'60% A'}},
-  {date:'2024-12-12', tag:'',   type:'ENTP-A', name:'辩论家',   ie:49, sn:77, tf:60, jp:53, at:67, raw:{ie:'51% E',sn:'77% N',tf:'60% T',jp:'53% P',at:'67% A'}},
-  {date:'2024-12-23', tag:'',   type:'INTP-A', name:'逻辑学家', ie:81, sn:78, tf:59, jp:63, at:61, raw:{ie:'81% I',sn:'78% N',tf:'59% T',jp:'63% P',at:'61% A'}},
-  {date:'2025-04-24', tag:'',   type:'INFP-A', name:'调停者',   ie:88, sn:82, tf:49, jp:73, at:81, raw:{ie:'88% I',sn:'82% N',tf:'51% F',jp:'73% P',at:'81% A'}},
-  {date:'2025-08-01', tag:'',   type:'INTJ-A', name:'建筑师',   ie:79, sn:88, tf:64, jp:49, at:72, raw:{ie:'79% I',sn:'88% N',tf:'64% T',jp:'51% J',at:'72% A'}},
-  {date:'2025-08-13', tag:'',   type:'INTP-A', name:'逻辑学家', ie:87, sn:85, tf:67, jp:60, at:72, raw:{ie:'87% I',sn:'85% N',tf:'67% T',jp:'60% P',at:'72% A'}},
-  {date:'2025-08-19', tag:'',   type:'INTP-A', name:'逻辑学家', ie:79, sn:82, tf:67, jp:60, at:81, raw:{ie:'79% I',sn:'82% N',tf:'67% T',jp:'60% P',at:'81% A'}},
-  {date:'2025-09-21', tag:'',   type:'INTP-A', name:'逻辑学家', ie:76, sn:79, tf:60, jp:68, at:67, raw:{ie:'76% I',sn:'79% N',tf:'60% T',jp:'68% P',at:'67% A'}},
-  {date:'2025-10-27', tag:'',   type:'INFP-A', name:'调停者',   ie:93, sn:83, tf:48, jp:61, at:68, raw:{ie:'93% I',sn:'83% N',tf:'52% F',jp:'61% P',at:'68% A'}},
-  {date:'2026-02-27', tag:'',   type:'INTP-A', name:'逻辑学家', ie:89, sn:67, tf:63, jp:67, at:71, raw:{ie:'89% I',sn:'67% N',tf:'63% T',jp:'67% P',at:'71% A'}},
-  {date:'2026-06-16', tag:'',   type:'INTP-A', name:'逻辑学家', ie:84, sn:78, tf:63, jp:65, at:85, raw:{ie:'84% I',sn:'78% N',tf:'63% T',jp:'65% P',at:'85% A'}},
-];
-const TODAY='2026-06-16', DAY=86400000, t0=Date.parse(records[0].date);
-records.forEach(r=>r.t=(Date.parse(r.date)-t0)/DAY);
-const todayOff=(Date.parse(TODAY)-t0)/DAY;
-const tsOf=off=>t0+off*DAY;
+// =====================================================================
+//  ✍️  开发者配置区 —— 复刻这个仓库,通常只需改这一块
+// =====================================================================
 
+// 1) 你的原始测试数据：每条只需 日期 + 五维百分比（tag 可选，用于标注同日多测）。
+//    数值 = 偏向"正极"(I/N/T/P/A) 的百分比；类型、称号、字母、raw 文案都会自动推导。
+const records = [
+  {date:'2024-06-29', tag:'#1', ie:61, sn:86, tf:56, jp:60, at:63},
+  {date:'2024-06-29', tag:'#2', ie:64, sn:88, tf:64, jp:52, at:57},
+  {date:'2024-11-27',          ie:88, sn:84, tf:89, jp:66, at:51},
+  {date:'2024-12-05',          ie:72, sn:79, tf:75, jp:56, at:60},
+  {date:'2024-12-12',          ie:49, sn:77, tf:60, jp:53, at:67},
+  {date:'2024-12-23',          ie:81, sn:78, tf:59, jp:63, at:61},
+  {date:'2025-04-24',          ie:88, sn:82, tf:49, jp:73, at:81},
+  {date:'2025-08-01',          ie:79, sn:88, tf:64, jp:49, at:72},
+  {date:'2025-08-13',          ie:87, sn:85, tf:67, jp:60, at:72},
+  {date:'2025-08-19',          ie:79, sn:82, tf:67, jp:60, at:81},
+  {date:'2025-09-21',          ie:76, sn:79, tf:60, jp:68, at:67},
+  {date:'2025-10-27',          ie:93, sn:83, tf:48, jp:61, at:68},
+  {date:'2026-02-27',          ie:89, sn:67, tf:63, jp:67, at:71},
+  {date:'2026-06-16',          ie:84, sn:78, tf:63, jp:65, at:85},
+];
+
+// 2) 解读文案：全部可选。留 null 会按你的数据自动生成一句中性但正确的话；
+//    想要自己的口吻，就把对应项写成字符串（支持 HTML）。结构永远在代码里，
+//    这里只放"内容覆盖"——所以加再多文案也不会让页面变僵。
+const CONFIG = {
+  title:    null,         // 大标题；null = 默认
+  subtitle: null,         // 副标题；null = "N 次测试 · 起 → 止 · 主导内核 XXXX-X"
+  defaultDim: null,       // 轨迹图默认高亮维度 'ie'|'sn'|'tf'|'jp'|'at'；null = 自动选最不笃定的轴
+  dimNotes: {             // 五维 tip 的"个人尾注"（接在通用释义之后）
+    ie:null, sn:null, tf:null, jp:null, at:null,
+  },
+  notes: {                // 各图下方点评；null = 自动从数据生成
+    bars:null,            // ① 当前的你
+    prob:null,            // ③ 字母概率
+    trend:null,           // ④ 真实时间轴
+    timeline:null,        // ⑤ 类型时间线
+  },
+  insights: null,         // ⑦ 解读要点；null = 自动。或填 [{icon:'🧱', html:'...'}, ...]
+  verdict:  null,         // ① 底部读数文案；null = 自动
+};
+
+// =====================================================================
+//  ↓↓↓ 以下为引擎与渲染，复刻时一般无需改动 ↓↓↓
+// =====================================================================
+
+const TYPE_NAMES={INTJ:'建筑师',INTP:'逻辑学家',ENTJ:'指挥官',ENTP:'辩论家',
+  INFJ:'提倡者',INFP:'调停者',ENFJ:'主人公',ENFP:'竞选者',
+  ISTJ:'物流师',ISFJ:'守护者',ESTJ:'总经理',ESFJ:'执政官',
+  ISTP:'鉴赏家',ISFP:'探险家',ESTP:'企业家',ESFP:'表演者'};
+
+// 维度定义（通用、可复用）：def = 中性释义；个人尾注由 CONFIG / 自动生成补上
 const dims=[
   {key:'ie',short:'I/E',aspect:'能量',color:'#4a9fc0',pos:'I',neg:'E',zPos:'内向',zNeg:'外向',
-    tip:'能量 (I/E):你如何与外界互动、从何处恢复精力。内向 (I) 偏好独处与小圈子充电;外向 (E) 从社交与外部刺激中获得能量。你常年稳定在 I 端。'},
+    def:'能量 (I/E):你如何与外界互动、从何处恢复精力。内向 (I) 偏好独处与小圈子充电;外向 (E) 从社交与外部刺激中获得能量。'},
   {key:'sn',short:'S/N',aspect:'心智',color:'#e0a23a',pos:'N',neg:'S',zPos:'天马行空',zNeg:'求真务实',
-    tip:'心智 (S/N):你更关注什么样的信息。求真务实 (S) 注重具体、当下、事实;天马行空 (N) 偏爱抽象、模式与未来可能性。你明显偏 N。'},
+    def:'心智 (S/N):你更关注什么样的信息。求真务实 (S) 注重具体、当下、事实;天马行空 (N) 偏爱抽象、模式与未来可能性。'},
   {key:'tf',short:'T/F',aspect:'天性',color:'#33a474',pos:'T',neg:'F',zPos:'理性思考',zNeg:'情感细腻',
-    tip:'天性 (T/F):你如何做决定。理性思考 (T) 以逻辑、客观为先;情感细腻 (F) 更看重和谐与他人感受。这是你五轴里最不笃定、可信区间唯一跨过 50% 的一维。'},
+    def:'天性 (T/F):你如何做决定。理性思考 (T) 以逻辑、客观为先;情感细腻 (F) 更看重和谐与他人感受。'},
   {key:'jp',short:'J/P',aspect:'应对方式',color:'#8c6bb0',pos:'P',neg:'J',zPos:'随机应变',zNeg:'运筹帷幄',
-    tip:'应对方式 (J/P):你如何安排生活与工作。运筹帷幄 (J) 喜欢计划、结构与确定;随机应变 (P) 偏好灵活、开放与即兴。你偏 P 但不极端。'},
+    def:'应对方式 (J/P):你如何安排生活与工作。运筹帷幄 (J) 喜欢计划、结构与确定;随机应变 (P) 偏好灵活、开放与即兴。'},
   {key:'at',short:'A/T',aspect:'身份特征',color:'#e0566b',pos:'A',neg:'T',zPos:'自信果断',zNeg:'情绪波动',
-    tip:'身份特征 (A/T):你对自身与压力的态度。自信果断 (A) 情绪稳定、抗压、少自我怀疑;情绪波动 (T) 更敏感、追求完美。你的 A 近期还在上行。'},
+    def:'身份特征 (A/T):你对自身与压力的态度。自信果断 (A) 情绪稳定、抗压、少自我怀疑;情绪波动 (T) 更敏感、追求完美。'},
 ];
-const typeColor={'INTP-A':'#4a9fc0','INFP-A':'#8c6bb0','INTJ-A':'#6b4f9e','ENTP-A':'#e0883a'};
+
+// —— 自动派生：类型 / 称号 / raw 文案 / 时间 / 配色，全部来自 records ——
+const lettersOf=r=>(r.ie>=50?'I':'E')+(r.sn>=50?'N':'S')+(r.tf>=50?'T':'F')+(r.jp>=50?'P':'J');
+const rawCell=(d,v)=>{const side=v>=50?d.pos:d.neg,val=v>=50?v:100-v;return val+'% '+side;};
+records.forEach(r=>{const core=lettersOf(r);
+  r.type=core+'-'+(r.at>=50?'A':'T'); r.name=TYPE_NAMES[core]||core;
+  r.raw={}; dims.forEach(d=>r.raw[d.key]=rawCell(d,r[d.key]));});
+
+const DAY=86400000, t0=Date.parse(records[0].date);
+records.forEach(r=>r.t=(Date.parse(r.date)-t0)/DAY);
+const TODAY=records[records.length-1].date, todayOff=(Date.parse(TODAY)-t0)/DAY;
+const tsOf=off=>t0+off*DAY;
+
+const PALETTE=['#4a9fc0','#8c6bb0','#6b4f9e','#e0883a','#33a474','#e0566b','#3aa7a0','#d06a9c'];
+const typeColor={};
+[...new Set(records.map(r=>r.type))].forEach((t,i)=>typeColor[t]=PALETTE[i%PALETTE.length]);
 
 // ===== 模型：logit + OU + Beta(高斯近似) + Kalman/RTS =====
 const logit=p=>Math.log(p/(1-p)), logistic=x=>1/(1+Math.exp(-x));
@@ -246,15 +276,84 @@ function computeDim(key, tau){
 const cache={};
 const getDim=(key,tau)=>cache[key+'@'+tau]||(cache[key+'@'+tau]=computeDim(key,tau));
 
+// ===== 事实层（B1 自动化）：从模型输出派生可叙述的"事实" =====
+const ham=(a,b)=>{let n=0;for(let i=0;i<a.length;i++)if(a[i]!==b[i])n++;return n;};
+function computeFacts(tau){
+  const per={};
+  dims.forEach(d=>{
+    const g=getDim(d.key,tau), t=g.today, grid=g.grid;
+    const conf=Math.max(t.pPos,100-t.pPos), crosses=t.lo<50&&t.hi>50;
+    const pastTs=grid[grid.length-1].ts-365*DAY; let past=grid[0];
+    for(const p of grid){if(p.ts<=pastTs)past=p;else break;}
+    const slope=t.mid-past.mid, dir=slope>4?'rising':slope<-4?'falling':'flat';
+    per[d.key]={conf,ciW:t.hi-t.lo,crosses,slope,dir,letter:t.pPos>=50?d.pos:d.neg,mid:t.mid,pPos:t.pPos};
+  });
+  const certain=dims.filter(d=>per[d.key].conf>=95);
+  let least=dims[0]; dims.forEach(d=>{if(per[d.key].conf<per[least.key].conf)least=d;});
+  const rising=dims.filter(d=>per[d.key].dir==='rising');
+  const counts={}; records.forEach(r=>counts[r.type]=(counts[r.type]||0)+1);
+  const uniq=[...new Set(records.map(r=>r.type))];
+  const dominant=uniq.reduce((a,b)=>counts[b]>counts[a]?b:a,uniq[0]), dom4=dominant.split('-')[0];
+  let maxGap=0,gFrom='',gTo='';
+  for(let i=1;i<records.length;i++){const gg=records[i].t-records[i-1].t;
+    if(gg>maxGap){maxGap=gg;gFrom=records[i-1].date;gTo=records[i].date;}}
+  let clusters=0,i=0;
+  while(i<records.length){let j=i;while(j+1<records.length&&records[j+1].t-records[j].t<=30)j++;
+    if(j-i+1>=3)clusters++; i=j+1;}
+  const neighborsOk=uniq.every(t=>ham(t.split('-')[0],dom4)<=1);
+  return {per,certain,least,rising,dominant,dom4,uniq,counts,
+    certainLetters:certain.map(d=>per[d.key].letter),
+    leastShort:least.short,leastLetter:per[least.key].letter,
+    leastConf:per[least.key].conf,leastCross:per[least.key].crosses,
+    risingLetters:rising.map(d=>per[d.key].letter),
+    maxGapMonths:(maxGap/30).toFixed(1),maxGapFrom:gFrom,maxGapTo:gTo,clusters,neighborsOk,
+    count:records.length,start:records[0].date,end:records[records.length-1].date};
+}
+
+// ===== 自动文案（留 null 时的兜底；可被 CONFIG 覆盖）=====
+const A = {
+  subtitle:f=>`${f.count} 次测试 · ${f.start} → ${f.end} · 主导内核 <b style="color:${typeColor[f.dominant]}">${f.dominant}</b>`,
+  bars:f=>`今天(${f.end})的最新一次测试结果。圆点 = 当前潜在估计,<b>淡色区块 = 95% 可信区间</b>(它跨过中线越多,这一维越"未定")。`,
+  prob:f=>(f.certainLetters.length
+      ? `${f.certainLetters.join(' / ')} 常年贴近 100%(几乎确定);<b>${f.leastShort} 是最不笃定、可信带最宽的轴</b> —— 偏 ${f.leastLetter} 但最活跃,不是非此即彼。`
+      : `各维度置信度相近;<b>${f.leastShort}</b> 是其中最不笃定的一轴。`),
+  trend:f=>{let s=`横轴按真实日期,一眼看出节奏疏密。最长一段约 ${f.maxGapMonths} 个月没有测试(${f.maxGapFrom} → ${f.maxGapTo})`;
+    if(f.clusters>0)s+=`,也有 ${f.clusters} 段密集连测`; return s+'。';},
+  timeline:f=>(f.neighborsOk
+      ? `出现过的 ${f.uniq.length} 种类型都是 ${f.dom4} 的"一字母邻居",从没两个字母同时翻转。`
+      : `出现过 ${f.uniq.length} 种类型,围绕主导型 ${f.dominant} 波动。`),
+  dimNote:(f,key)=>{const p=f.per[key], d=dims.find(x=>x.key===key);
+    let s=`你目前偏${p.mid>=50?d.zPos:d.zNeg}(P(${p.letter})≈${p.conf.toFixed(0)}%)`;
+    if(f.least.key===key)s+=',也是你五维里最不笃定的一维';
+    else if(p.dir==='rising')s+=',且近期仍在上行';
+    else if(p.dir==='falling')s+=',且近期在回落';
+    return s+'。';},
+  verdict:(f,typeStr)=>`模型对"今天的你"的最佳读数:<br/><b>${typeStr}</b><br/>`+
+    `<span style="font-size:13px">${f.certainLetters.length?`核心 ${f.certainLetters.join('/')} 近乎确定;`:''}带"?"者表示偏向虽明确、但信度不足以笃定。</span>`,
+  insights:f=>{const ins=[];
+    if(f.certainLetters.length)ins.push({icon:'🧱',
+      html:`<b>近乎确定的内核:${f.certainLetters.join('、')}。</b> 这几条概率曲线常年贴着 100%,可信带远离临界线。<span class="key">这是你确定的人格底色。</span>`});
+    ins.push({icon:'🌡️',
+      html:`<b>最活跃的轴:${f.leastShort}(偏 ${f.leastLetter},但不笃定)。</b> 当前 P(${f.leastLetter})≈${f.leastConf.toFixed(0)}%,是五轴里最低、可信带最宽${f.leastCross?'、唯一下界跌破 50%':''}的。<span class="key">它长期在临界带上呼吸,不是非此即彼。</span>`});
+    if(f.rising.length)ins.push({icon:'📈',
+      html:`<b>${f.risingLetters.join('、')} 在上行。</b> 近一年潜在轨迹斜率为正,最新一次实测落在区间偏高处。<span class="key">方向值得继续观察。</span>`});
+    ins.push({icon:'⏳',
+      html:`<b>诚实话。</b> n=${f.count}、只有汇总百分比。OU 把空档处的你拉回个人基线,而非编造趋势。<span class="key">单次命中 ≠ 模型被证明,持续命中才算 —— 建议每隔一两个月测一次。</span>`});
+    ins.push({icon:'🎯',
+      html:`<b>一句话:</b> 你是<span class="key">潜在轨迹高度稳定的 ${f.dominant}</span>${f.certainLetters.length?`,内核 ${f.certainLetters.join('/')} 近乎确定`:''};唯一真正"活着"的维度是 <b>${f.leastShort}</b>。`});
+    return ins;},
+};
+
 // 浅色图表通用样式
 const AX={axisLabel:{color:'#7a8095'},axisLine:{lineStyle:{color:'#e7eaf1'}}};
 const SPLIT={lineStyle:{color:'#eef1f6'}};
 const TT={backgroundColor:'#ffffff',borderColor:'#e7eaf1',borderWidth:1,textStyle:{color:'#2f3149'},extraCssText:'box-shadow:0 4px 20px rgba(40,44,80,.1);border-radius:10px;'};
 const LEG={textStyle:{color:'#7a8095'}};
 
+let curDim=null, curTau=500, facts=null;
+
 // ===== ② 轨迹图 =====
 const trajChart=echarts.init(document.getElementById('traj'));
-let curDim='tf', curTau=500;
 function renderTraj(){
   const d=dims.find(x=>x.key===curDim), g=getDim(curDim,curTau).grid;
   const lo=g.map(p=>[p.ts,+p.lo.toFixed(2)]), mid=g.map(p=>[p.ts,+p.mid.toFixed(2)]);
@@ -314,13 +413,15 @@ function renderBars(){
     if(conf>=95){chip='ok';label='确定';letters[d.key]=letter;}
     else if(conf>=75){chip='mid';label='较确定';letters[d.key]=letter;}
     else{chip='no';label='临界';letters[d.key]=letter+'?';}
+    const note=CONFIG.dimNotes[d.key] ?? A.dimNote(facts,d.key);
+    const tip=d.def+' '+note;
     html+=`<div class="bar-row">
       <div class="bar-head">
         <span class="bar-aspect">${d.aspect} <span class="qbubble" data-i="${i}" title="点击查看释义">?</span></span>
         <span class="bar-val" style="color:${d.color}">${sideVal.toFixed(0)}% ${sideZh}
           <span class="chip ${chip}">P(${letter})=${(pPos>=50?pPos:100-pPos).toFixed(0)}% · ${label}</span></span>
       </div>
-      <div class="bar-tip" id="tip-${i}" hidden>${d.tip}</div>
+      <div class="bar-tip" id="tip-${i}" hidden>${tip}</div>
       <div class="track">
         <div class="fill" style="left:0;width:${t.mid.toFixed(1)}%;background:${d.color}"></div>
         <div class="ci" style="left:${t.lo.toFixed(1)}%;width:${(t.hi-t.lo).toFixed(1)}%;background:${d.color}"></div>
@@ -332,14 +433,26 @@ function renderBars(){
   });
   document.getElementById('bars').innerHTML=html;
   const typeStr=letters.ie+letters.sn+letters.tf+letters.jp+'-'+letters.at;
-  document.getElementById('verdict').innerHTML=
-    `模型对"今天的你"的最佳读数:<br/><b>${typeStr}</b><br/>`+
-    `<span style="font-size:13px">核心 I/N/A 近乎确定;带"?"者表示偏向虽明确、但信度不足以笃定。</span>`;
+  document.getElementById('verdict').innerHTML=CONFIG.verdict ?? A.verdict(facts,typeStr);
 }
 
-function renderAll(){renderBars();renderTraj();renderProb();}
+// ===== 解读层渲染（B2 覆盖 / 自动兜底）=====
+const setHTML=(id,h)=>{const el=document.getElementById(id);if(el)el.innerHTML=h;};
+function renderNarrative(){
+  const f=facts;
+  setHTML('title',    CONFIG.title ?? '🧭 你的动态人格 · 有界轨迹模型');
+  setHTML('hdrSub',   CONFIG.subtitle      ?? A.subtitle(f));
+  setHTML('sub1',     CONFIG.notes.bars    ?? A.bars(f));
+  setHTML('note3',    CONFIG.notes.prob    ?? A.prob(f));
+  setHTML('sub4',     CONFIG.notes.trend   ?? A.trend(f));
+  setHTML('sub5',     CONFIG.notes.timeline?? A.timeline(f));
+  const list=CONFIG.insights ?? A.insights(f);
+  setHTML('insights', list.map(it=>`<div class="insight"><div class="ico">${it.icon||'•'}</div><div class="body">${it.html}</div></div>`).join(''));
+}
 
-// ===== ④ 真实时间轴趋势 =====
+function renderAll(){ facts=computeFacts(curTau); renderBars(); renderTraj(); renderProb(); renderNarrative(); }
+
+// ===== ④ 真实时间轴趋势（静态，仅依赖 records）=====
 echarts.init(document.getElementById('trend')).setOption({
   tooltip:Object.assign({trigger:'axis',formatter:ps=>{const ts=ps[0].axisValue;const r=records.find(r=>Math.abs(tsOf(r.t)-ts)<DAY);
     let s=new Date(+ts).toISOString().slice(0,10)+(r?` · ${r.type} ${r.name}`:'')+'<br/>';
@@ -353,21 +466,23 @@ echarts.init(document.getElementById('trend')).setOption({
     markLine:d.key==='ie'?{silent:true,symbol:'none',data:[{yAxis:50,lineStyle:{color:'#e0395c',type:'dashed',width:1.2},label:{formatter:'50%',color:'#e0395c'}}]}:undefined}))
 });
 
-// ===== ⑤ 类型时间线 =====
+// ===== ⑤ 类型时间线（类别按出现频次排序）=====
+const tlOrder=[...new Set(records.map(r=>r.type))]
+  .sort((a,b)=>records.filter(r=>r.type===a).length-records.filter(r=>r.type===b).length);
 echarts.init(document.getElementById('timeline')).setOption({
   tooltip:Object.assign({trigger:'item',formatter:p=>{const r=records[p.dataIndex];return `${r.date}${r.tag?' '+r.tag:''}<br/>${r.type} · ${r.name}`;}},TT),
   grid:{left:64,right:24,top:24,bottom:40},
   xAxis:Object.assign({type:'time'},AX),
-  yAxis:Object.assign({type:'category',data:['ENTP-A','INTJ-A','INFP-A','INTP-A'],axisLabel:{color:'#7a8095'}},{splitLine:SPLIT,axisLine:{lineStyle:{color:'#e7eaf1'}}}),
+  yAxis:Object.assign({type:'category',data:tlOrder,axisLabel:{color:'#7a8095'}},{splitLine:SPLIT,axisLine:{lineStyle:{color:'#e7eaf1'}}}),
   series:[{type:'scatter',symbolSize:17,data:records.map(r=>({value:[tsOf(r.t),r.type],itemStyle:{color:typeColor[r.type]}}))}]
 });
 
 // ===== ⑥ 数据表 =====
-let html='<thead><tr><th>日期</th><th>类型</th><th>称号</th><th>I/E</th><th>S/N</th><th>T/F</th><th>J/P</th><th>A/T</th></tr></thead><tbody>';
-records.forEach(r=>{const tc='t-'+r.type.split('-')[0];const cell=k=>`<td class="${r[k]<50?'flipc':''}">${r.raw[k]}</td>`;
-  html+=`<tr><td>${r.date}${r.tag?' '+r.tag:''}</td><td class="${tc}">${r.type}</td><td style="color:var(--muted)">${r.name}</td>`
+(function(){let html='<thead><tr><th>日期</th><th>类型</th><th>称号</th><th>I/E</th><th>S/N</th><th>T/F</th><th>J/P</th><th>A/T</th></tr></thead><tbody>';
+records.forEach(r=>{const cell=k=>`<td class="${r[k]<50?'flipc':''}">${r.raw[k]}</td>`;
+  html+=`<tr><td>${r.date}${r.tag?' '+r.tag:''}</td><td style="color:${typeColor[r.type]};font-weight:700">${r.type}</td><td style="color:var(--muted)">${r.name}</td>`
     +cell('ie')+cell('sn')+cell('tf')+cell('jp')+cell('at')+'</tr>';});
-document.getElementById('dataTable').innerHTML=html+'</tbody>';
+document.getElementById('dataTable').innerHTML=html+'</tbody>';})();
 
 // "?" 点击展开释义（委托，跨重渲染有效）
 document.getElementById('bars').addEventListener('click',e=>{
@@ -377,6 +492,8 @@ document.getElementById('bars').addEventListener('click',e=>{
 });
 
 // 初始化
+facts=computeFacts(curTau);
+curDim=CONFIG.defaultDim || facts.least.key;
 setBtns(); renderAll();
 window.addEventListener('resize',()=>document.querySelectorAll('.chart').forEach(el=>{const c=echarts.getInstanceByDom(el);if(c)c.resize();}));
 </script>
